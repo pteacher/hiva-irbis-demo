@@ -17,14 +17,14 @@ const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.inner
 
 const controls = new OrbitControls( camera, renderer.domElement );
 
-const ambient = new THREE.AmbientLight( 0x222222 );
+const ambient = new THREE.AmbientLight( 0x222222, 1.0 );
 scene.add( ambient );
 
-const directionalLight = new THREE.DirectionalLight( 0xffffff, 4 );
+const directionalLight = new THREE.DirectionalLight( 0xffffff, 2 );
 directionalLight.position.set( 0, 20, 100 ).normalize();
 scene.add( directionalLight );
 
-const light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
+const light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 5 );
 scene.add( light );
 
 const spot1 = new THREE.SpotLight( 0xffffff, 1 );
@@ -48,14 +48,8 @@ controls.mouseButtons = {
 // scene.add( cube );
 
 scene.background = new THREE.Color('black');
-
-animate();
-
-function animate() {
-	requestAnimationFrame( animate );
-	controls.update();
-	renderer.render( scene, camera );
-}
+let mixer;
+let clock = new THREE.Clock();
 
 const loader = new GLTFLoader();
 
@@ -66,6 +60,10 @@ loader.load( head, function ( gltf ) {
             roughnessMipmapper.generateMipmaps( child.material );
         }
     } )
+    mixer = new THREE.AnimationMixer( gltf.scene );
+    gltf.animations.forEach( ( clip ) => {  
+        mixer.clipAction( clip ).play();
+    } );
     model.position.set( 0, 0, 0 );
     model.scale.set( 0.5, 0.5, 0.5 );
     scene.add( model );
@@ -73,4 +71,12 @@ loader.load( head, function ( gltf ) {
 	console.error( error );
 } );
 
+animate();
 
+function animate() {
+	requestAnimationFrame( animate );
+    var delta = clock.getDelta();
+    if ( mixer ) mixer.update( delta );
+	controls.update();
+	renderer.render( scene, camera );
+}
