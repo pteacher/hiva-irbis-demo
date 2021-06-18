@@ -66,8 +66,9 @@ loader.load( head, function ( gltf ) {
     gltf.animations.forEach( ( clip ) => {  
         mixer.clipAction( clip ).play();
     } );
-    model.position.set( 0, 5, 0 );
+    model.position.set( 0, 13, 0 );
     model.scale.set( 10, 10, 10 );
+    model.rotation.set(0, 0, Math.PI);
     scene.add( model );
 }, undefined, function ( error ) {
 	console.error( error );
