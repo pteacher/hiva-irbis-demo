@@ -11,9 +11,11 @@ renderer.physicallyCorrectLights = true;
 const roughnessMipmapper = new RoughnessMipmapper( renderer );
 document.body.appendChild( renderer.domElement );
 
+
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
+camera.rotateY(180);
 
 const controls = new OrbitControls( camera, renderer.domElement );
 
@@ -21,7 +23,7 @@ const ambient = new THREE.AmbientLight( 0x222222, 1.0 );
 scene.add( ambient );
 
 const directionalLight = new THREE.DirectionalLight( 0xffffff, 2 );
-directionalLight.position.set( 0, 20, 100 ).normalize();
+directionalLight.position.set( 0, 20, 50 ).normalize();
 scene.add( directionalLight );
 
 const light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 5 );
@@ -31,10 +33,10 @@ const spot1 = new THREE.SpotLight( 0xffffff, 1 );
 spot1.position.set( 5, 20, 100 );
 spot1.angle = 0.50;
 spot1.penumbra = 0.75;
-spot1.intensity = 100;
+spot1.intensity = 20;
 spot1.decay = 2;
 
-camera.position.set( 0, 20, 100 );
+camera.position.set( 0, 0, 70 );
 controls.update();
 controls.mouseButtons = {
 	LEFT: THREE.MOUSE.ROTATE,
@@ -64,8 +66,8 @@ loader.load( head, function ( gltf ) {
     gltf.animations.forEach( ( clip ) => {  
         mixer.clipAction( clip ).play();
     } );
-    model.position.set( 0, 0, 0 );
-    model.scale.set( 0.5, 0.5, 0.5 );
+    model.position.set( 0, 5, 0 );
+    model.scale.set( 10, 10, 10 );
     scene.add( model );
 }, undefined, function ( error ) {
 	console.error( error );
