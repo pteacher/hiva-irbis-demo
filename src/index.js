@@ -41,7 +41,7 @@ const views = [
         left: 0.25,
         bottom: 0.4,
         width: 0.5,
-        height: 0.6,
+        height: 0.5,
         background: new THREE.Color( 0.5, 0.5, 0.7 ),
         eye: [ 0, 100, 400 ],
         up: [ 0, 1, 0 ],    
