@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 import { RoughnessMipmapper } from 'three/examples/jsm/utils/RoughnessMipmapper.js';
 import head from './head.glb';
+import welcome from './0_0.ogg';
 
 
 let scene, renderer;
@@ -21,7 +22,7 @@ const views = [
         width: 0.5,
         height: 0.5,
         background: new THREE.Color( 0.7, 0.5, 0.5 ),
-        eye: [ 400, 0, 0 ],
+        eye: [ 400, -50, 0 ],
         up: [ 0, 0, 1 ],
         fov: 30,
         
@@ -32,8 +33,8 @@ const views = [
         width: 0.5,
         height: 0.5,
         background: new THREE.Color( 0.5, 0.7, 0.7 ),
-        eye: [ -400, 0, 0 ],
-        up: [ 1, 0, 0 ],
+        eye: [ -400, -50, 1 ],
+        up: [ 0, 0, 1 ],
         fov: 30,
     
     },
@@ -43,7 +44,7 @@ const views = [
         width: 0.5,
         height: 0.5,
         background: new THREE.Color( 0.5, 0.5, 0.7 ),
-        eye: [ 0, 0, 400 ],
+        eye: [ 0, -100, 400 ],
         up: [ 0, 1, 0 ],    
         fov: 30,
     }
@@ -130,27 +131,21 @@ function init() {
         view.camera = camera;
         
     }
-
     document.addEventListener( 'mousemove', onDocumentMouseMove );
 
 }
 
 function onDocumentMouseMove( event ) {
-
     mouseX = ( event.clientX - windowWidth / 2 );
     mouseY = ( event.clientY - windowHeight / 2 );
-
 }
 
 function updateSize() {
 
     if ( windowWidth != window.innerWidth || windowHeight != window.innerHeight ) {
-
         windowWidth = window.innerWidth;
         windowHeight = window.innerHeight;
-
         renderer.setSize( windowWidth, windowHeight );
-
     }
 
 }
@@ -189,3 +184,29 @@ function render() {
     }
 
 }
+
+
+const listener = new THREE.AudioListener();
+const camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 10000 );
+camera.add( listener );
+
+// create a global audio source
+const sound = new THREE.Audio( listener );
+
+// load a sound and set it as the Audio object's buffer
+const audioLoader = new THREE.AudioLoader();
+audioLoader.load( welcome, function( buffer ) {
+	sound.setBuffer( buffer );
+	sound.setLoop( false );
+	sound.setVolume( 0.5 );
+	sound.play();
+},
+// onProgress callback
+function ( xhr ) {
+    console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+},
+
+// onError callback
+function ( err ) {
+    console.log( 'Un error ha ocurrido' );
+});

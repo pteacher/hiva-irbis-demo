@@ -9,7 +9,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.glb$/i,
+        test: /\.(glb|ogg)$/i,
         type: 'asset/resource',
       }
     ]
