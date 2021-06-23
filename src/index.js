@@ -17,7 +17,7 @@ let clock = new THREE.Clock();
 const views = [
     { // RIGHT
         left: 0.59,
-        bottom: 0,
+        bottom: -0.13,
         width: 0.5,
         height: 0.5,
         background: new THREE.Color( 0.7, 0.5, 0.5 ),
@@ -28,7 +28,7 @@ const views = [
     },
     { // LEFT
         left: -0.09,
-        bottom: 0,
+        bottom: -0.13,
         width: 0.5,
         height: 0.5,
         background: new THREE.Color( 0.5, 0.7, 0.7 ),
@@ -39,7 +39,7 @@ const views = [
     },
     { // CENTER
         left: 0.25,
-        bottom: 0.3,
+        bottom: 0.5,
         width: 0.5,
         height: 0.5,
         background: new THREE.Color( 0.5, 0.5, 0.7 ),
@@ -108,7 +108,7 @@ function init() {
         gltf.animations.forEach( ( clip ) => {  
             mixer.clipAction( clip ).play();
         } );
-        model.position.set( 0, 50, -55 );
+        model.position.set( 0, 33, 0 );
         model.scale.set( 50, 50, 50 );
         model.rotation.set(0, 0, Math.PI);
         scene.add( model );
