@@ -70,6 +70,14 @@ function init() {
     light.position.set( 0, 0, 1 );
     scene.add( light );
 
+    const light2 = new THREE.DirectionalLight( 0xffffff );
+    light2.position.set( -10, -10, 0 );
+    scene.add( light2 );
+
+    const light3 = new THREE.DirectionalLight( 0xffffff );
+    light3.position.set( 10, 10, 0 );
+    scene.add( light3 );
+
     const ambient = new THREE.AmbientLight( 0x222222, 0.7 );
     scene.add( ambient );
 
