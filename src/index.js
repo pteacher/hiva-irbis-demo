@@ -18,8 +18,8 @@ let clock = new THREE.Clock();
 
 const views = [
     { // RIGHT
-        left: 0.59,
-        bottom: -0.13,
+        left: 0.62,
+        bottom: -0.05,
         width: 0.5,
         height: 0.5,
         background: new THREE.Color( 0.7, 0.5, 0.5 ),
@@ -29,8 +29,8 @@ const views = [
         
     },
     { // LEFT
-        left: -0.09,
-        bottom: -0.13,
+        left: -0.12,
+        bottom: -0.05,
         width: 0.5,
         height: 0.5,
         background: new THREE.Color( 0.5, 0.7, 0.7 ),
@@ -41,11 +41,11 @@ const views = [
     },
     { // CENTER
         left: 0.25,
-        bottom: 0.5,
+        bottom: 0.3,
         width: 0.5,
         height: 0.5,
         background: new THREE.Color( 0.5, 0.5, 0.7 ),
-        eye: [ 0, -100, 400 ],
+        eye: [ 0, -10, 400 ],
         up: [ 0, 1, 0 ],    
         fov: 30,
     }
@@ -114,7 +114,7 @@ function init() {
         
         // playAnimationOnce("Take 001_group1");
         // playAnimationOnce("Take 001_right_finger1");
-        model.position.set( 0, 33, 0 );
+        model.position.set( 0, 25, 0 );
         model.scale.set( 40, 40, 40 );
         model.rotation.set(0, 0, Math.PI);
         console.log( gltf.animations.filter(i => {return i.duration > 0}));
