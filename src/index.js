@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 import { RoughnessMipmapper } from 'three/examples/jsm/utils/RoughnessMipmapper.js';
-import head from './head.glb';
+import head from './eve.glb';
+import logo from './alatoo.glb';
 import welcome from './0_0.ogg';
 
 
@@ -12,7 +13,7 @@ let mouseX = 0, mouseY = 0;
 
 let windowWidth, windowHeight;
 
-let mixer;
+let mixer, aniModel;
 let clock = new THREE.Clock();
 
 const views = [
@@ -69,7 +70,7 @@ function init() {
     light.position.set( 0, 0, 1 );
     scene.add( light );
 
-    const ambient = new THREE.AmbientLight( 0x222222, 1.0 );
+    const ambient = new THREE.AmbientLight( 0x222222, 0.7 );
     scene.add( ambient );
 
     
@@ -98,8 +99,9 @@ function init() {
     const count = geometry1.attributes.position.count;
     geometry1.setAttribute( 'color', new THREE.BufferAttribute( new Float32Array( count * 3 ), 3 ) );
     const loader = new GLTFLoader();
-    loader.load( head, function ( gltf ) {
+    loader.load( logo, function ( gltf ) {
         const model = gltf.scene;
+        aniModel = gltf;    
         gltf.scene.traverse( function ( child ) {
             if ( child.isMesh ) {
                 roughnessMipmapper.generateMipmaps( child.material );
@@ -107,11 +109,15 @@ function init() {
         } )
         mixer = new THREE.AnimationMixer( gltf.scene );
         gltf.animations.forEach( ( clip ) => {  
-            mixer.clipAction( clip ).play();
+             mixer.clipAction( clip ).play();
         } );
+        
+        // playAnimationOnce("Take 001_group1");
+        // playAnimationOnce("Take 001_right_finger1");
         model.position.set( 0, 33, 0 );
-        model.scale.set( 50, 50, 50 );
+        model.scale.set( 40, 40, 40 );
         model.rotation.set(0, 0, Math.PI);
+        console.log( gltf.animations.filter(i => {return i.duration > 0}));
         scene.add( model );
     }, undefined, function ( error ) {
         console.error( error );
@@ -122,17 +128,31 @@ function init() {
     renderer.setSize( window.innerWidth, window.innerHeight );
     container.appendChild( renderer.domElement );
     for ( let ii = 0; ii < views.length; ++ ii ) {
-
         const view = views[ ii ];
         const camera = new THREE.PerspectiveCamera( view.fov, window.innerWidth / window.innerHeight, 1, 10000 );
         camera.position.fromArray( view.eye );
         camera.up.fromArray( view.up );
         camera.lookAt( scene.position );
         view.camera = camera;
-        
     }
     document.addEventListener( 'mousemove', onDocumentMouseMove );
 
+}
+
+function playAnimationOnce(animName){
+    let g = aniModel.animations.find((i, index, arr) => { return i.name == animName })
+    if(g !== null && g !== undefined){
+        try{
+            mixer.clipAction(g).play();
+            setTimeout(()=> {
+                mixer.clipAction(g).stop();
+            }, g.duration * 1000)
+        }catch (e) {
+            console.error(e)
+        }
+    }else{
+        console.error("animation play error! animName => " + animName);
+    }
 }
 
 function onDocumentMouseMove( event ) {
@@ -141,16 +161,12 @@ function onDocumentMouseMove( event ) {
 }
 
 function updateSize() {
-
     if ( windowWidth != window.innerWidth || windowHeight != window.innerHeight ) {
         windowWidth = window.innerWidth;
         windowHeight = window.innerHeight;
         renderer.setSize( windowWidth, windowHeight );
     }
-
 }
-
-
 
 function animate() {
 
@@ -184,29 +200,3 @@ function render() {
     }
 
 }
-
-
-const listener = new THREE.AudioListener();
-const camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 10000 );
-camera.add( listener );
-
-// create a global audio source
-const sound = new THREE.Audio( listener );
-
-// load a sound and set it as the Audio object's buffer
-const audioLoader = new THREE.AudioLoader();
-audioLoader.load( welcome, function( buffer ) {
-	sound.setBuffer( buffer );
-	sound.setLoop( false );
-	sound.setVolume( 0.5 );
-	sound.play();
-},
-// onProgress callback
-function ( xhr ) {
-    console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-},
-
-// onError callback
-function ( err ) {
-    console.log( 'Un error ha ocurrido' );
-});
