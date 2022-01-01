@@ -62,7 +62,7 @@ function init() {
 
     new GLTFLoader().load( head, function ( gltf ) {
         const model = gltf.scene;
-        model.scale.set(0.01, 0.01, 0.01);
+        model.scale.set(0.1, 0.1, 0.1);
         scene.add( model );
         mixer = new THREE.AnimationMixer( model );
         animate();
