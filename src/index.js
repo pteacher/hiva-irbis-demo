@@ -349,6 +349,52 @@ let renderScene;
 const lightColor = 0x0099ff;
 const ctx = document.createElement('canvas').getContext('2d');
 
+function createInfoBlock(message) {
+    let canvas = document.createElement('canvas');
+    let context = canvas.getContext('2d');
+    let textSize = 20;
+    context.font = textSize + "px Verdana";
+    let metrics = context.measureText( message );
+    let textWidth = metrics.width;
+
+    context.fillStyle = "rgba(255, 255, 255, 0.0)";
+    context.strokeStyle = "rgb(255, 255, 255)";
+    const borderThickness = 2;
+    context.lineWidth = borderThickness;
+    roundRect(context, borderThickness/2, borderThickness/2, textWidth + borderThickness + 10, textSize * 1.4 + borderThickness, 6);
+
+
+    context.fillStyle = "rgba(255, 50, 50, 1.0)";
+    context.fillText( " " + message, borderThickness, textSize + borderThickness);
+
+    let texture = new THREE.Texture(canvas)
+    texture.needsUpdate = true;
+    texture.repeat.set(-1, 1);
+    texture.center.set(0.5, 0.5);
+    let spriteMaterial = new THREE.SpriteMaterial(
+        { map: texture, useScreenCoordinates: false, rotation: Math.PI} );
+    let sprite = new THREE.Sprite( spriteMaterial );
+    sprite.scale.set(100,50,1.0);
+    return sprite;
+}
+
+function roundRect(ctx, x, y, w, h, r)
+{
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.lineTo(x+w-r, y);
+    ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+    ctx.lineTo(x+w, y+h-r);
+    ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+    ctx.lineTo(x+r, y+h);
+    ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+    ctx.lineTo(x, y+r);
+    ctx.quadraticCurveTo(x, y, x+r, y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+}
+
 function wrapText(context, text, x, y, maxWidth, lineHeight) {
     let words = text.split(' ');
     let line = '';
@@ -441,7 +487,6 @@ function createCurvedPlane(text) {
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     let txt = text.toUpperCase();
-    // ctx.fillText('Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias, aperiam corporis cupiditate debitis, earum esse, ipsam iusto laudantium molestiae non praesentium recusandae rerum tempora vel veritatis? Consequatur ipsam mollitia nemo!', ctx.canvas.width / 2, ctx.canvas.height / 2);
     let lineHeight = 24;
 
     if (text.length < 10) {
@@ -596,7 +641,7 @@ function init() {
     particles.addAttribute( 'position', new THREE.BufferAttribute( particlePositions, 3 ).setDynamic(true));
 
     pointCloud = new THREE.Points( particles, pMaterial );
-    // scene.add( pointCloud );
+    scene.add( pointCloud );
 
     const count = geometry1.attributes.position.count;
     geometry1.setAttribute('color', new THREE.BufferAttribute(new Float32Array(count * 3), 3));
@@ -666,12 +711,20 @@ function init() {
         gltf.scene.traverse(function (child) {
             if (child.isMesh) {
                 roughnessMipmapper.generateMipmaps(child.material);
+
+                // if (child.name.includes('others')) {
+                //     child.material.transparent = true;
+                //     child.material.opacity = 0.0;
+                //     console.log(child.name);
+                // }
             }
         })
         mixer = new THREE.AnimationMixer(gltf.scene);
         initAnimations(gltf)
-        activeAction = actions["idle"]
-        fadeToAction("idle", .1)
+        activeAction = actions["idle"];
+        setTimeout(() => {
+            fadeToAction("blockBinfo", .1)
+        }, 1000)
 
         setTimeout(() => {
             fadeToAction("hi", .1)
@@ -708,6 +761,42 @@ function init() {
         //model.position.set(2, 5, 0);
         model.rotation.set(0, 0, Math.PI);
         scene.add(model);
+
+        // let blockASprite = createInfoBlock( "A BLOCK" );
+        // blockASprite.position.set(-30, 130, -80);
+        // blockASprite.rotation.set(0, 0, Math.PI);
+        // scene.add( blockASprite );
+        //
+        // let blockBSprite = createInfoBlock( "B BLOCK" );
+        // blockBSprite.position.set(-20, 85, -80);
+        // blockBSprite.rotation.set(0, 0, Math.PI);
+        // scene.add( blockBSprite );
+        //
+        // let gymSprite = createInfoBlock( "GYM" );
+        // gymSprite.position.set(60, 40, -80);
+        // gymSprite.rotation.set(0, 0, Math.PI);
+        // scene.add( gymSprite );
+        //
+        // let blockCSprite = createInfoBlock( "C BLOCK" );
+        // blockCSprite.position.set(35, 130, -80);
+        // blockCSprite.rotation.set(0, 0, Math.PI);
+        // scene.add( blockCSprite );
+        //
+        // let cafeSprite = createInfoBlock( "CAFE" );
+        // cafeSprite.position.set(100, 132, -80);
+        // cafeSprite.rotation.set(0, 0, Math.PI);
+        // scene.add( cafeSprite );
+        //
+        // let fieldSprite = createInfoBlock( "FIELDS" );
+        // fieldSprite.position.set(90, 55, -80);
+        // fieldSprite.rotation.set(0, 0, Math.PI);
+        // scene.add( fieldSprite );
+        //
+        // let blockDSprite = createInfoBlock( "D BLOCK" );
+        // blockDSprite.position.set(50, -90, -80);
+        // blockDSprite.rotation.set(0, 0, Math.PI);
+        // scene.add( blockDSprite );
+
     }, undefined, function (error) {
     }, undefined, function (error) {
         console.error(error);
@@ -983,7 +1072,7 @@ function animate() {
     // update();
 
     updateSize()
-    //composer.render();
+    // composer.render();
     // controls.update();
 }
 
