@@ -1,297 +1,143 @@
-// import * as THREE from 'three';
-// import Stats from "three/examples/jsm/libs/stats.module";
-// import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-// import {RenderPass} from "three/examples/jsm/postprocessing/RenderPass";
-// import {UnrealBloomPass} from "three/examples/jsm/postprocessing/UnrealBloomPass";
-// import {EffectComposer} from "three/examples/jsm/postprocessing/EffectComposer";
-// import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
-// import head from './uni.glb';
-// import {GUI} from "three/examples/jsm/libs/dat.gui.module";
-//
-//
-// let camera, stats;
-// let composer, renderer, mixer, clock;
-//
-// const params = {
-//     exposure: 1,
-//     bloomStrength: 1.5,
-//     bloomThreshold: 0,
-//     bloomRadius: 0
-// };
-//
-// const views = [
-//     { // RIGHT
-//         left: 0.62,
-//         bottom: -0.05,
-//         width: 0.5,
-//         height: 0.5,
-//         background: new THREE.Color(0.7, 0.5, 0.5),
-//         eye: [400, 0, 0],
-//         up: [0, 0, 1],
-//         fov: 30,
-//     },
-//     { // LEFT
-//         left: -0.12,
-//         bottom: -0.05,
-//         width: 0.5,
-//         height: 0.5,
-//         background: new THREE.Color(0.5, 0.7, 0.7),
-//         eye: [-400, 0, 0],
-//         up: [0, 0, 1],
-//         fov: 30,
-//
-//     },
-//     { // CENTER
-//         left: 0.25,
-//         bottom: 0.3,
-//         width: 0.5,
-//         height: 0.5,
-//         background: new THREE.Color(0.5, 0.5, 0.7),
-//         eye: [0, -10, 400],
-//         up: [0, 1, 0],
-//         fov: 30,
-//     }
-// ];
-//
-// init();
-//
-// function init() {
-//
-//     const container = document.getElementById( 'container' );
-//
-//     clock = new THREE.Clock();
-//
-//     renderer = new THREE.WebGLRenderer( { antialias: true } );
-//     renderer.setPixelRatio( window.devicePixelRatio );
-//     renderer.setSize( window.innerWidth, window.innerHeight );
-//     renderer.toneMapping = THREE.ReinhardToneMapping;
-//     container.appendChild( renderer.domElement );
-//
-//     const scene = new THREE.Scene();
-//
-//     camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 100 );
-//     camera.position.set( - 6, -4.5,  2.5 );
-//     scene.add( camera );
-//
-//     const controls = new OrbitControls( camera, renderer.domElement );
-//     controls.maxPolarAngle = Math.PI * 0.5;
-//     controls.minDistance = 1;
-//     controls.maxDistance = 10;
-//
-//     scene.add( new THREE.AmbientLight( 0x404040 ) );
-//
-//     const pointLight = new THREE.PointLight( 0xffffff, 1 );
-//     camera.add( pointLight );
-//
-//     const renderScene = new RenderPass( scene, camera );
-//
-//     const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 2.5, 1, 0.1 );
-//     bloomPass.threshold = params.bloomThreshold;
-//     bloomPass.strength = params.bloomStrength;
-//     bloomPass.radius = params.bloomRadius;
-//
-//     composer = new EffectComposer( renderer );
-//     composer.addPass( renderScene );
-//     composer.addPass( bloomPass );
-//
-//     new GLTFLoader().load( head, function ( gltf ) {
-//         const model = gltf.scene;
-//         model.scale.set(0.2, 0.2, 0.2);
-//         model.rotation.set(Math.PI, 0, 0);
-//         model.position.set(2, 5, 0);
-//         scene.add( model );
-//         mixer = new THREE.AnimationMixer( model );
-//         animate();
-//
-//     } );
-//
-//     const gui = new GUI();
-//
-//     gui.add( params, 'exposure', 0.1, 2 ).onChange( function ( value ) {
-//
-//         renderer.toneMappingExposure = Math.pow( value, 4.0 );
-//
-//     } );
-//
-//     gui.add( params, 'bloomThreshold', 0.0, 1.0 ).onChange( function ( value ) {
-//
-//         bloomPass.threshold = Number( value );
-//
-//     } );
-//
-//     gui.add( params, 'bloomStrength', 0.0, 3.0 ).onChange( function ( value ) {
-//
-//         bloomPass.strength = Number( value );
-//
-//     } );
-//
-//     gui.add( params, 'bloomRadius', 0.0, 1.0 ).step( 0.01 ).onChange( function ( value ) {
-//
-//         bloomPass.radius = Number( value );
-//
-//     } );
-//
-//     window.addEventListener( 'resize', onWindowResize );
-//
-// }
-//
-// function onWindowResize() {
-//
-//     const width = window.innerWidth;
-//     const height = window.innerHeight;
-//
-//     camera.aspect = width / height;
-//     camera.updateProjectionMatrix();
-//
-//     renderer.setSize( width, height );
-//     composer.setSize( width, height );
-//
-// }
-//
-// function animate() {
-//
-//     requestAnimationFrame( animate );
-//
-//     const delta = clock.getDelta();
-//
-//     mixer.update( delta );
-//
-//     composer.render();
-//
-// }
+// DONE: Russian voice recognition and synth
+// DONE: Playing 20 seconds of music from Youtube
+// DONE: News, Time, Weather on request
 
+// TODO: Question answering (accuracy 90%) - based on test
+// TODO: Add more dialogs (1000 most frequent topics phrases)
+// TODO: Computer which can handle Vosk + silero (torch)
+// TODO: 3D model - Barsik with animations: speaking, idle (blinking, random head turn, tail wave, head scratch, body turns, ear moves), wave on greetings, thumbs up animations
+// TODO: 3D Holographic University model: info about all university blocks and each block animated (rotation) and with short info
+// TODO: Wiki search if not found in QA base (confidence less than 50%)
 
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
-import {Stats} from 'three/examples/jsm/libs/stats.module.js';
 import {RoughnessMipmapper} from 'three/examples/jsm/utils/RoughnessMipmapper.js';
-import head from './eve_anim.glb';
-import {speak} from './voice.js';
+import head from './uni.glb';
 import {io} from "socket.io-client";
-import {WebGLRenderTarget} from "three";
-import {ShaderPass} from "three/examples/jsm/postprocessing/ShaderPass";
-import {HorizontalBlurShader} from "three/examples/jsm/shaders/HorizontalBlurShader";
-import {VerticalBlurShader} from "three/examples/jsm/shaders/VerticalBlurShader";
+// import {WebGLRenderTarget} from "three";
+// import {ShaderPass} from "three/examples/jsm/postprocessing/ShaderPass";
+// import {HorizontalBlurShader} from "three/examples/jsm/shaders/HorizontalBlurShader";
+// import {VerticalBlurShader} from "three/examples/jsm/shaders/VerticalBlurShader";
 import {EffectComposer} from "three/examples/jsm/postprocessing/EffectComposer";
 import {RenderPass} from "three/examples/jsm/postprocessing/RenderPass";
 import {UnrealBloomPass} from "three/examples/jsm/postprocessing/UnrealBloomPass";
-import {GUI} from "three/examples/jsm/libs/dat.gui.module";
+// import {GUI} from "three/examples/jsm/libs/dat.gui.module";
 
 const socket = io();
 
-const getImageTexture = (image, density = 1) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const { width, height } = image;
+// const getImageTexture = (image, density = 1) => {
+//     const canvas = document.createElement('canvas');
+//     const ctx = canvas.getContext('2d');
+//     const { width, height } = image;
+//
+//     canvas.setAttribute('width', window.innerWidth * .25);
+//     canvas.setAttribute('height', window.innerHeight * .25);
+//     canvas.style.width = `${width}px`;
+//     canvas.style.height = `${height}px`;
+//
+//     ctx.drawImage(image, 0, 0, width * density, height * density);
+//
+//     return canvas;
+// };
 
-    canvas.setAttribute('width', window.innerWidth * .25);
-    canvas.setAttribute('height', window.innerHeight * .25);
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-
-    ctx.drawImage(image, 0, 0, width * density, height * density);
-
-    return canvas;
-};
-
-let VolumetericLightShader = {
-    uniforms: {
-        tDiffuse: {value:null},
-        lightPosition: {value: new THREE.Vector2(0.5, 0.5)},
-        exposure: {value: 1},
-        decay: {value: 1},
-        density: {value: 6},
-        weight: {value: 0.57},
-        samples: {value: 30}
-    },
-
-    vertexShader: [
-        "varying vec2 vUv;",
-        "void main() {",
-        "vUv = uv;",
-        "gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);",
-        "}"
-    ].join("\n"),
-
-    fragmentShader: [
-        "varying vec2 vUv;",
-        "uniform sampler2D tDiffuse;",
-        "uniform vec2 lightPosition;",
-        "uniform float exposure;",
-        "uniform float decay;",
-        "uniform float density;",
-        "uniform float weight;",
-        "uniform int samples;",
-        "const int MAX_SAMPLES = 100;",
-        "void main()",
-        "{",
-        "vec2 texCoord = vUv;",
-        "vec2 deltaTextCoord = texCoord - lightPosition;",
-        "deltaTextCoord *= 1.0 / float(samples) * density;",
-        "vec4 color = texture2D(tDiffuse, texCoord);",
-        "float illuminationDecay = 1.0;",
-        "for(int i=0; i < MAX_SAMPLES; i++)",
-        "{",
-        "if(i == samples) {",
-        "break;",
-        "}",
-        "texCoord += deltaTextCoord;",
-        "vec4 sampled = texture2D(tDiffuse, texCoord);",
-        "sampled *= illuminationDecay * weight;",
-        "color += sampled;",
-        "illuminationDecay *= decay;",
-        "}",
-        "gl_FragColor = color * exposure;",
-        "}"
-    ].join("\n")
-};
-let AdditiveBlendingShader = {
-    uniforms: {
-        tDiffuse: { value:null },
-        tAdd: { value:null }
-    },
-
-    vertexShader: [
-        "varying vec2 vUv;",
-        "void main() {",
-        "vUv = uv;",
-        "gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);",
-        "}"
-    ].join("\n"),
-
-    fragmentShader: [
-        "uniform sampler2D tDiffuse;",
-        "uniform sampler2D tAdd;",
-        "varying vec2 vUv;",
-        "void main() {",
-        "vec4 color = texture2D(tDiffuse, vUv);",
-        "vec4 add = texture2D(tAdd, vUv);",
-        "gl_FragColor = color + add;",
-        "}"
-    ].join("\n")
-};
-let PassThroughShader = {
-    uniforms: {
-        tDiffuse: { value: null }
-    },
-
-    vertexShader: [
-        "varying vec2 vUv;",
-        "void main() {",
-        "vUv = uv;",
-        "gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);",
-        "}"
-    ].join("\n"),
-
-    fragmentShader: [
-        "uniform sampler2D tDiffuse;",
-        "varying vec2 vUv;",
-        "void main() {",
-        "gl_FragColor = texture2D(tDiffuse, vec2(vUv.x, vUv.y));",
-        "}"
-    ].join("\n")
-};
+// let VolumetericLightShader = {
+//     uniforms: {
+//         tDiffuse: {value:null},
+//         lightPosition: {value: new THREE.Vector2(0.5, 0.5)},
+//         exposure: {value: 1},
+//         decay: {value: 1},
+//         density: {value: 6},
+//         weight: {value: 0.57},
+//         samples: {value: 30}
+//     },
+//
+//     vertexShader: [
+//         "varying vec2 vUv;",
+//         "void main() {",
+//         "vUv = uv;",
+//         "gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);",
+//         "}"
+//     ].join("\n"),
+//
+//     fragmentShader: [
+//         "varying vec2 vUv;",
+//         "uniform sampler2D tDiffuse;",
+//         "uniform vec2 lightPosition;",
+//         "uniform float exposure;",
+//         "uniform float decay;",
+//         "uniform float density;",
+//         "uniform float weight;",
+//         "uniform int samples;",
+//         "const int MAX_SAMPLES = 100;",
+//         "void main()",
+//         "{",
+//         "vec2 texCoord = vUv;",
+//         "vec2 deltaTextCoord = texCoord - lightPosition;",
+//         "deltaTextCoord *= 1.0 / float(samples) * density;",
+//         "vec4 color = texture2D(tDiffuse, texCoord);",
+//         "float illuminationDecay = 1.0;",
+//         "for(int i=0; i < MAX_SAMPLES; i++)",
+//         "{",
+//         "if(i == samples) {",
+//         "break;",
+//         "}",
+//         "texCoord += deltaTextCoord;",
+//         "vec4 sampled = texture2D(tDiffuse, texCoord);",
+//         "sampled *= illuminationDecay * weight;",
+//         "color += sampled;",
+//         "illuminationDecay *= decay;",
+//         "}",
+//         "gl_FragColor = color * exposure;",
+//         "}"
+//     ].join("\n")
+// };
+// let AdditiveBlendingShader = {
+//     uniforms: {
+//         tDiffuse: { value:null },
+//         tAdd: { value:null }
+//     },
+//
+//     vertexShader: [
+//         "varying vec2 vUv;",
+//         "void main() {",
+//         "vUv = uv;",
+//         "gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);",
+//         "}"
+//     ].join("\n"),
+//
+//     fragmentShader: [
+//         "uniform sampler2D tDiffuse;",
+//         "uniform sampler2D tAdd;",
+//         "varying vec2 vUv;",
+//         "void main() {",
+//         "vec4 color = texture2D(tDiffuse, vUv);",
+//         "vec4 add = texture2D(tAdd, vUv);",
+//         "gl_FragColor = color + add;",
+//         "}"
+//     ].join("\n")
+// };
+// let PassThroughShader = {
+//     uniforms: {
+//         tDiffuse: { value: null }
+//     },
+//
+//     vertexShader: [
+//         "varying vec2 vUv;",
+//         "void main() {",
+//         "vUv = uv;",
+//         "gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);",
+//         "}"
+//     ].join("\n"),
+//
+//     fragmentShader: [
+//         "uniform sampler2D tDiffuse;",
+//         "varying vec2 vUv;",
+//         "void main() {",
+//         "gl_FragColor = texture2D(tDiffuse, vec2(vUv.x, vUv.y));",
+//         "}"
+//     ].join("\n")
+// };
 
 socket.on("connect", () => {
     console.log(socket.id);
@@ -313,7 +159,7 @@ socket.on("hello", (data) => {
 
 })
 
-let scene, renderer, stats;
+let scene, renderer;
 let mouseX = 0, mouseY = 0;
 let windowWidth, windowHeight, activeAction, previousAction;
 let curvedRectangle;
@@ -326,17 +172,19 @@ let isInfoShowing = 3;
 let disapearTimer;
 
 let composer,
-    filmPass,
-    badTVPass,
-    bloomPass,
-    blendPass,
-    occlusionComposer,
+    // filmPass,
+    // badTVPass,
+    // bloomPass,
+    // blendPass,
+    // occlusionComposer,
     itemMesh,
-    occMesh,
-    occRenderTarget,
-    lightSource,
-    vlShaderUniforms,
-    controls;
+    occMesh;
+    // occRenderTarget,
+    // lightSource,
+    // vlShaderUniforms;
+
+// let controls;
+
 
 const params = {
     exposure: 1.1,
@@ -346,7 +194,7 @@ const params = {
 };
 
 let renderScene;
-const lightColor = 0x0099ff;
+// const lightColor = 0x0099ff;
 const ctx = document.createElement('canvas').getContext('2d');
 
 function createInfoBlock(message) {
@@ -436,7 +284,6 @@ function rotateAboutPoint(obj, point, axis, theta, pointIsWorld) {
 function planeCurve(g, z) {
     if (!g instanceof THREE.PlaneGeometry) {
         throw new Error('first argument of planeCurve() MUST be an instance of PlaneGeometry');
-        return;
     }
 
     let p = g.parameters;
@@ -501,7 +348,7 @@ function createCurvedPlane(text) {
 
     const texture = new THREE.CanvasTexture(ctx.canvas);
     const geometry = new THREE.PlaneGeometry(16 / 10, 9 / 10, 8, 1);
-    const positions = geometry.attributes.position;
+    // const positions = geometry.attributes.position;
 
     planeCurve(geometry, -1);
 
@@ -604,10 +451,10 @@ function init() {
     context.fillStyle = gradient;
     context.fillRect(0, 0, canvas.width, canvas.height);
 
-    const shadowTexture = new THREE.CanvasTexture(canvas);
+    // const shadowTexture = new THREE.CanvasTexture(canvas);
 
-    const shadowMaterial = new THREE.MeshBasicMaterial({map: shadowTexture, transparent: true});
-    const shadowGeo = new THREE.PlaneGeometry(300, 300, 1, 1);
+    // const shadowMaterial = new THREE.MeshBasicMaterial({map: shadowTexture, transparent: true});
+    // const shadowGeo = new THREE.PlaneGeometry(300, 300, 1, 1);
 
     const radius = 200;
 
@@ -627,7 +474,7 @@ function init() {
 
     particles = new THREE.BufferGeometry();
 
-    particlePositions = new Float32Array(particleNum * 3);//----x,y,zで3倍
+    particlePositions = new Float32Array(particleNum * 3);
     for ( var i = 0; i < particleNum; i++ ) {
         var x = Math.random() * range - range / 2;
         var y = Math.random() * range - range / 2;
@@ -637,11 +484,9 @@ function init() {
         particlePositions[ i * 3 + 2 ] = z;
     }
     particles.setDrawRange( 0, particleNum );
-
     particles.addAttribute( 'position', new THREE.BufferAttribute( particlePositions, 3 ).setDynamic(true));
-
     pointCloud = new THREE.Points( particles, pMaterial );
-    scene.add( pointCloud );
+    //scene.add( pointCloud );
 
     const count = geometry1.attributes.position.count;
     geometry1.setAttribute('color', new THREE.BufferAttribute(new Float32Array(count * 3), 3));
@@ -719,83 +564,88 @@ function init() {
                 // }
             }
         })
-        mixer = new THREE.AnimationMixer(gltf.scene);
-        initAnimations(gltf)
-        activeAction = actions["idle"];
-        setTimeout(() => {
-            fadeToAction("blockBinfo", .1)
-        }, 1000)
-
-        setTimeout(() => {
-            fadeToAction("hi", .1)
-        }, 1000)
-
-        setTimeout(() => {
-            fadeToAction("speak", 0.2)
-        }, 13000)
-
-        setTimeout(() => {
-            fadeToAction("hi", 0.2)
-        }, 6000)
-
-        setTimeout(() => {
-            fadeToAction("stand", 0.2)
-        }, 9000)
-
+        // mixer = new THREE.AnimationMixer(gltf.scene);
+        // initAnimations(gltf)
+        // activeAction = actions["idle"];
         // setTimeout(() => {
-        //     fadeToAction("idle", 0.2)
-        // }, 12000)
-
-        setInterval(() => {
-            fadeToAction("hi", 0.2)
-        }, 60000)
-
-        setInterval(() => {
-            fadeToAction("stand", .1)
-        }, 62000)
+        //     fadeToAction("blockBinfo", .1)
+        // }, 1000)
+        //
+        // setTimeout(() => {
+        //     fadeToAction("hi", .1)
+        // }, 1000)
+        //
+        // setTimeout(() => {
+        //     fadeToAction("speak", 0.2)
+        // }, 13000)
+        //
+        // setTimeout(() => {
+        //     fadeToAction("hi", 0.2)
+        // }, 6000)
+        //
+        // setTimeout(() => {
+        //     fadeToAction("stand", 0.2)
+        // }, 9000)
+        //
+        // // setTimeout(() => {
+        // //     fadeToAction("idle", 0.2)
+        // // }, 12000)
+        //
+        // setInterval(() => {
+        //     fadeToAction("hi", 0.2)
+        // }, 60000)
+        //
+        // setInterval(() => {
+        //     fadeToAction("stand", .1)
+        // }, 62000)
 
         // playAnimationOnce("Take 001_right_finger1");
-        model.position.set(0, 40, 0);
+        //model.position.set(0, 40, 0);
         model.scale.set(35, 35, 35);
         // model.scale.set(0.2, 0.2, 0.2);
-        //model.position.set(2, 5, 0);
+        model.position.set(2, 5, 0);
         model.rotation.set(0, 0, Math.PI);
         scene.add(model);
 
-        // let blockASprite = createInfoBlock( "A BLOCK" );
-        // blockASprite.position.set(-30, 130, -80);
-        // blockASprite.rotation.set(0, 0, Math.PI);
-        // scene.add( blockASprite );
-        //
-        // let blockBSprite = createInfoBlock( "B BLOCK" );
-        // blockBSprite.position.set(-20, 85, -80);
-        // blockBSprite.rotation.set(0, 0, Math.PI);
-        // scene.add( blockBSprite );
-        //
-        // let gymSprite = createInfoBlock( "GYM" );
-        // gymSprite.position.set(60, 40, -80);
-        // gymSprite.rotation.set(0, 0, Math.PI);
-        // scene.add( gymSprite );
-        //
-        // let blockCSprite = createInfoBlock( "C BLOCK" );
-        // blockCSprite.position.set(35, 130, -80);
-        // blockCSprite.rotation.set(0, 0, Math.PI);
-        // scene.add( blockCSprite );
-        //
-        // let cafeSprite = createInfoBlock( "CAFE" );
-        // cafeSprite.position.set(100, 132, -80);
-        // cafeSprite.rotation.set(0, 0, Math.PI);
-        // scene.add( cafeSprite );
-        //
-        // let fieldSprite = createInfoBlock( "FIELDS" );
-        // fieldSprite.position.set(90, 55, -80);
-        // fieldSprite.rotation.set(0, 0, Math.PI);
-        // scene.add( fieldSprite );
-        //
-        // let blockDSprite = createInfoBlock( "D BLOCK" );
-        // blockDSprite.position.set(50, -90, -80);
-        // blockDSprite.rotation.set(0, 0, Math.PI);
-        // scene.add( blockDSprite );
+        let blockASprite = createInfoBlock( "A BLOCK" );
+        blockASprite.position.set(-30, 130, -80);
+        blockASprite.rotation.set(0, 0, Math.PI);
+        scene.add( blockASprite );
+
+        let blockBSprite = createInfoBlock( "B BLOCK" );
+        blockBSprite.position.set(-10, 50, -80);
+        blockBSprite.rotation.set(0, 0, Math.PI);
+        scene.add( blockBSprite );
+
+        let gymSprite = createInfoBlock( "GYM" );
+        gymSprite.position.set(60, 40, -80);
+        gymSprite.rotation.set(0, 0, Math.PI);
+        scene.add( gymSprite );
+
+        let blockCSprite = createInfoBlock( "C BLOCK" );
+        blockCSprite.position.set(55, 135, -80);
+        blockCSprite.rotation.set(0, 0, Math.PI);
+        scene.add( blockCSprite );
+
+        let cafeSprite = createInfoBlock( "CAFE" );
+        cafeSprite.position.set(100, 132, -80);
+        cafeSprite.rotation.set(0, 0, Math.PI);
+        scene.add( cafeSprite );
+
+        let fieldSprite = createInfoBlock( "FIELDS" );
+        fieldSprite.position.set(90, 55, -80);
+        fieldSprite.rotation.set(0, 0, Math.PI);
+        scene.add( fieldSprite );
+
+        let restZoneSprite = createInfoBlock( "REST ZONE" );
+        restZoneSprite.position.set(90, 20, -80);
+        restZoneSprite.rotation.set(0, 0, Math.PI);
+        scene.add( restZoneSprite );
+
+        let blockDSprite = createInfoBlock( "D BLOCK" );
+        blockDSprite.position.set(50, -90, -80);
+        blockDSprite.rotation.set(0, 0, Math.PI);
+        scene.add( blockDSprite );
 
     }, undefined, function (error) {
     }, undefined, function (error) {
@@ -835,116 +685,116 @@ function init() {
 
 }
 
-function setupScene() {
-    lightSource = new THREE.Object3D();
-    lightSource.position.x = 5;
-    lightSource.position.y = -15;
-    lightSource.position.z = -15;
-
-    const itemMaterial = new THREE.MeshBasicMaterial({transparent: true, opacity: 0.7});
-
-    const img = new Image();
-    img.src = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/13307/blaster.png';
-    img.crossOrigin = 'Anonymous';
-
-    img.onload = function() {
-        const itemTexture = new THREE.Texture(
-            getImageTexture(img),
-            null,
-            THREE.ClampToEdgeWrapping,
-            THREE.ClampToEdgeWrapping,
-            null,
-            THREE.LinearFilter
-        );
-
-        itemTexture.needsUpdate = true;
-        itemMaterial.map = itemTexture;
-
-        const itemGeo = new THREE.BoxGeometry( 30, 30, 30);
-        itemMesh = new THREE.Mesh(itemGeo, itemMaterial);
-        scene.add(itemMesh);
-
-        const occItemMaterial = new THREE.MeshBasicMaterial({color: lightColor});
-        occItemMaterial.map = itemTexture;
-
-        occMesh = new THREE.Mesh(itemGeo, occItemMaterial);
-        occMesh.layers.set(1);
-
-        scene.add(occMesh);
-    }
-
-    // camera.position.z = 4.5;
-}
-
-
-
-function setupPostprocessing(width, height, camera) {
-    occRenderTarget = new WebGLRenderTarget(width * .25, height * .25);
-
-    // Blur passes
-    const hBlur = new ShaderPass(HorizontalBlurShader);
-    const vBlur = new ShaderPass(VerticalBlurShader);
-    const bluriness = 7;
-    hBlur.uniforms.h.value = bluriness / width;
-    vBlur.uniforms.v.value = bluriness / height;
+// function setupScene() {
+//     lightSource = new THREE.Object3D();
+//     lightSource.position.x = 5;
+//     lightSource.position.y = -15;
+//     lightSource.position.z = -15;
+//
+//     const itemMaterial = new THREE.MeshBasicMaterial({transparent: true, opacity: 0.7});
+//
+//     const img = new Image();
+//     img.src = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/13307/blaster.png';
+//     img.crossOrigin = 'Anonymous';
+//
+//     img.onload = function() {
+//         const itemTexture = new THREE.Texture(
+//             getImageTexture(img),
+//             null,
+//             THREE.ClampToEdgeWrapping,
+//             THREE.ClampToEdgeWrapping,
+//             null,
+//             THREE.LinearFilter
+//         );
+//
+//         itemTexture.needsUpdate = true;
+//         itemMaterial.map = itemTexture;
+//
+//         const itemGeo = new THREE.BoxGeometry( 30, 30, 30);
+//         itemMesh = new THREE.Mesh(itemGeo, itemMaterial);
+//         scene.add(itemMesh);
+//
+//         const occItemMaterial = new THREE.MeshBasicMaterial({color: lightColor});
+//         occItemMaterial.map = itemTexture;
+//
+//         occMesh = new THREE.Mesh(itemGeo, occItemMaterial);
+//         occMesh.layers.set(1);
+//
+//         scene.add(occMesh);
+//     }
+//
+//     // camera.position.z = 4.5;
+// }
 
 
-    // Bad TV Pass
-    // badTVPass = new THREE.ShaderPass(THREE.BadTVShader);
-    // badTVPass.uniforms.distortion.value = 1.9;
-    // badTVPass.uniforms.distortion2.value = 1.2;
-    // badTVPass.uniforms.speed.value = 0.1;
-    // badTVPass.uniforms.rollSpeed.value = 0;
 
-    // Volumetric Light Pass
-    const vlPass = new ShaderPass(VolumetericLightShader);
-    vlShaderUniforms = vlPass.uniforms;
-    vlPass.needsSwap = false;
-
-    // Occlusion Composer
-    occlusionComposer = new EffectComposer(renderer, occRenderTarget);
-    occlusionComposer.addPass(new RenderPass(scene, camera));
-    occlusionComposer.addPass(hBlur);
-    occlusionComposer.addPass(vBlur);
-    occlusionComposer.addPass(hBlur);
-    occlusionComposer.addPass(vBlur);
-    occlusionComposer.addPass(hBlur);
-    occlusionComposer.addPass(vlPass);
-
-    // Bloom pass
-    // bloomPass = new THREE.UnrealBloomPass(width / height, 0.5, .8, .3);
-
-    // Film pass
-    // filmPass = new THREE.ShaderPass(THREE.FilmShader);
-    // filmPass.uniforms.sCount.value = 1200;
-    // filmPass.uniforms.grayscale.value = false;
-    // filmPass.uniforms.sIntensity.value = 1.5;
-    // filmPass.uniforms.nIntensity.value = 0.2;
-
-    // Blend occRenderTarget into main render target
-    blendPass = new ShaderPass(AdditiveBlendingShader);
-    blendPass.uniforms.tAdd.value = occRenderTarget.texture;
-    blendPass.renderToScreen = true;
-
-    // Main Composer
-    renderScene = new RenderPass( scene, camera );
-
-    bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
-    bloomPass.threshold = params.bloomThreshold;
-    bloomPass.strength = params.bloomStrength;
-    bloomPass.radius = params.bloomRadius;
-
-    composer = new EffectComposer( renderer );
-    composer.addPass( renderScene );
-    composer.addPass( bloomPass );
-
-    composer = new EffectComposer(renderer);
-    composer.addPass(new RenderPass(scene, camera));
-    // composer.addPass(bloomPass);
-    // composer.addPass(badTVPass);
-    // composer.addPass(filmPass);
-    composer.addPass(blendPass);
-}
+// function setupPostprocessing(width, height, camera) {
+//     occRenderTarget = new WebGLRenderTarget(width * .25, height * .25);
+//
+//     // Blur passes
+//     const hBlur = new ShaderPass(HorizontalBlurShader);
+//     const vBlur = new ShaderPass(VerticalBlurShader);
+//     const bluriness = 7;
+//     hBlur.uniforms.h.value = bluriness / width;
+//     vBlur.uniforms.v.value = bluriness / height;
+//
+//
+//     // Bad TV Pass
+//     // badTVPass = new THREE.ShaderPass(THREE.BadTVShader);
+//     // badTVPass.uniforms.distortion.value = 1.9;
+//     // badTVPass.uniforms.distortion2.value = 1.2;
+//     // badTVPass.uniforms.speed.value = 0.1;
+//     // badTVPass.uniforms.rollSpeed.value = 0;
+//
+//     // Volumetric Light Pass
+//     const vlPass = new ShaderPass(VolumetericLightShader);
+//     vlShaderUniforms = vlPass.uniforms;
+//     vlPass.needsSwap = false;
+//
+//     // Occlusion Composer
+//     occlusionComposer = new EffectComposer(renderer, occRenderTarget);
+//     occlusionComposer.addPass(new RenderPass(scene, camera));
+//     occlusionComposer.addPass(hBlur);
+//     occlusionComposer.addPass(vBlur);
+//     occlusionComposer.addPass(hBlur);
+//     occlusionComposer.addPass(vBlur);
+//     occlusionComposer.addPass(hBlur);
+//     occlusionComposer.addPass(vlPass);
+//
+//     // Bloom pass
+//     // bloomPass = new THREE.UnrealBloomPass(width / height, 0.5, .8, .3);
+//
+//     // Film pass
+//     // filmPass = new THREE.ShaderPass(THREE.FilmShader);
+//     // filmPass.uniforms.sCount.value = 1200;
+//     // filmPass.uniforms.grayscale.value = false;
+//     // filmPass.uniforms.sIntensity.value = 1.5;
+//     // filmPass.uniforms.nIntensity.value = 0.2;
+//
+//     // Blend occRenderTarget into main render target
+//     blendPass = new ShaderPass(AdditiveBlendingShader);
+//     blendPass.uniforms.tAdd.value = occRenderTarget.texture;
+//     blendPass.renderToScreen = true;
+//
+//     // Main Composer
+//     renderScene = new RenderPass( scene, camera );
+//
+//     bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+//     bloomPass.threshold = params.bloomThreshold;
+//     bloomPass.strength = params.bloomStrength;
+//     bloomPass.radius = params.bloomRadius;
+//
+//     composer = new EffectComposer( renderer );
+//     composer.addPass( renderScene );
+//     composer.addPass( bloomPass );
+//
+//     composer = new EffectComposer(renderer);
+//     composer.addPass(new RenderPass(scene, camera));
+//     // composer.addPass(bloomPass);
+//     // composer.addPass(badTVPass);
+//     // composer.addPass(filmPass);
+//     composer.addPass(blendPass);
+// }
 
 function fadeToAction(name, duration) {
     previousAction = activeAction;
@@ -960,12 +810,12 @@ function fadeToAction(name, duration) {
         .play();
 }
 
-function initAnimations(gltf) {
-    actions = {};
-    gltf.animations.forEach(i => {
-        actions[i.name] = mixer.clipAction(i)
-    })
-}
+// function initAnimations(gltf) {
+//     actions = {};
+//     gltf.animations.forEach(i => {
+//         actions[i.name] = mixer.clipAction(i)
+//     })
+// }
 
 function playAnimationOnce(animName, animationStopCallback = () => {
 }, reverse = false) {
@@ -1033,7 +883,7 @@ function updateSize() {
 
 function animate() {
 
-    let time = Date.now() * 0.001;
+    // let time = Date.now() * 0.001;
 
     for (var i= 0; i < particleNum; i++ ) {
 
