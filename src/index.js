@@ -13,7 +13,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {RoughnessMipmapper} from 'three/examples/jsm/utils/RoughnessMipmapper.js';
-import head from './uni.glb';
+import head from './eve_anim.glb';
 import {io} from "socket.io-client";
 // import {WebGLRenderTarget} from "three";
 // import {ShaderPass} from "three/examples/jsm/postprocessing/ShaderPass";
@@ -211,7 +211,6 @@ function createInfoBlock(message) {
     context.lineWidth = borderThickness;
     roundRect(context, borderThickness/2, borderThickness/2, textWidth + borderThickness + 10, textSize * 1.4 + borderThickness, 6);
 
-
     context.fillStyle = "rgba(255, 50, 50, 1.0)";
     context.fillText( " " + message, borderThickness, textSize + borderThickness);
 
@@ -395,10 +394,10 @@ const views = [
         fov: 30,
     },
     { // CENTER
-        left: 0.15,
-        bottom: 0.3,
-        width: 0.7,
-        height: 0.7,
+        left: 0.25,
+        bottom: 0.5,
+        width: 0.5,
+        height: 0.5,
         background: new THREE.Color(0.5, 0.5, 0.7),
         eye: [0, -10, 400],
         up: [0, 1, 0],
@@ -486,7 +485,7 @@ function init() {
     particles.setDrawRange( 0, particleNum );
     particles.addAttribute( 'position', new THREE.BufferAttribute( particlePositions, 3 ).setDynamic(true));
     pointCloud = new THREE.Points( particles, pMaterial );
-    //scene.add( pointCloud );
+    // scene.add( pointCloud );
 
     const count = geometry1.attributes.position.count;
     geometry1.setAttribute('color', new THREE.BufferAttribute(new Float32Array(count * 3), 3));
@@ -564,88 +563,89 @@ function init() {
                 // }
             }
         })
-        // mixer = new THREE.AnimationMixer(gltf.scene);
-        // initAnimations(gltf)
-        // activeAction = actions["idle"];
+        mixer = new THREE.AnimationMixer(gltf.scene);
+        initAnimations(gltf)
+        activeAction = actions["idle"];
+        setTimeout(() => {
+            fadeToAction("blockBinfo", .1)
+        }, 1000)
+
+        setTimeout(() => {
+            fadeToAction("hi", .1)
+        }, 1000)
+
+        setTimeout(() => {
+            fadeToAction("speak", 0.2)
+        }, 13000)
+
+        setTimeout(() => {
+            fadeToAction("hi", 0.2)
+        }, 6000)
+
+        setTimeout(() => {
+            fadeToAction("stand", 0.2)
+        }, 9000)
+
         // setTimeout(() => {
-        //     fadeToAction("blockBinfo", .1)
-        // }, 1000)
-        //
-        // setTimeout(() => {
-        //     fadeToAction("hi", .1)
-        // }, 1000)
-        //
-        // setTimeout(() => {
-        //     fadeToAction("speak", 0.2)
-        // }, 13000)
-        //
-        // setTimeout(() => {
-        //     fadeToAction("hi", 0.2)
-        // }, 6000)
-        //
-        // setTimeout(() => {
-        //     fadeToAction("stand", 0.2)
-        // }, 9000)
-        //
-        // // setTimeout(() => {
-        // //     fadeToAction("idle", 0.2)
-        // // }, 12000)
-        //
-        // setInterval(() => {
-        //     fadeToAction("hi", 0.2)
-        // }, 60000)
-        //
-        // setInterval(() => {
-        //     fadeToAction("stand", .1)
-        // }, 62000)
+        //     fadeToAction("idle", 0.2)
+        // }, 12000)
+
+        setInterval(() => {
+            fadeToAction("hi", 0.2)
+        }, 60000)
+
+        setInterval(() => {
+            fadeToAction("stand", .1)
+        }, 62000)
 
         // playAnimationOnce("Take 001_right_finger1");
-        //model.position.set(0, 40, 0);
+        model.position.set(0, 40, 0);
+        // model.scale.set(75, 75, 75);
         model.scale.set(35, 35, 35);
-        // model.scale.set(0.2, 0.2, 0.2);
-        model.position.set(2, 5, 0);
+        // model.scale.set(1.5, 1.5, 1.5);
+        //model.position.set(2, 5, 0);
         model.rotation.set(0, 0, Math.PI);
         scene.add(model);
 
-        let blockASprite = createInfoBlock( "A BLOCK" );
-        blockASprite.position.set(-30, 130, -80);
-        blockASprite.rotation.set(0, 0, Math.PI);
-        scene.add( blockASprite );
-
-        let blockBSprite = createInfoBlock( "B BLOCK" );
-        blockBSprite.position.set(-10, 50, -80);
-        blockBSprite.rotation.set(0, 0, Math.PI);
-        scene.add( blockBSprite );
-
-        let gymSprite = createInfoBlock( "GYM" );
-        gymSprite.position.set(60, 40, -80);
-        gymSprite.rotation.set(0, 0, Math.PI);
-        scene.add( gymSprite );
-
-        let blockCSprite = createInfoBlock( "C BLOCK" );
-        blockCSprite.position.set(55, 135, -80);
-        blockCSprite.rotation.set(0, 0, Math.PI);
-        scene.add( blockCSprite );
-
-        let cafeSprite = createInfoBlock( "CAFE" );
-        cafeSprite.position.set(100, 132, -80);
-        cafeSprite.rotation.set(0, 0, Math.PI);
-        scene.add( cafeSprite );
-
-        let fieldSprite = createInfoBlock( "FIELDS" );
-        fieldSprite.position.set(90, 55, -80);
-        fieldSprite.rotation.set(0, 0, Math.PI);
-        scene.add( fieldSprite );
-
-        let restZoneSprite = createInfoBlock( "REST ZONE" );
-        restZoneSprite.position.set(90, 20, -80);
-        restZoneSprite.rotation.set(0, 0, Math.PI);
-        scene.add( restZoneSprite );
-
-        let blockDSprite = createInfoBlock( "D BLOCK" );
-        blockDSprite.position.set(50, -90, -80);
-        blockDSprite.rotation.set(0, 0, Math.PI);
-        scene.add( blockDSprite );
+        // let blockASprite = createInfoBlock( "A BLOCK" );
+        // blockASprite.position.set(-30, 130, -80);
+        // blockASprite.rotation.set(0, 0, Math.PI);
+        // scene.add( blockASprite );
+        //
+        // let blockBSprite = createInfoBlock( "B BLOCK" );
+        // blockBSprite.position.set(-10, 50, -80);
+        // blockBSprite.rotation.set(0, 0, Math.PI);
+        // scene.add( blockBSprite );
+        //
+        // let gymSprite = createInfoBlock( "GYM" );
+        // gymSprite.position.set(60, 40, -80);
+        // gymSprite.rotation.set(0, 0, Math.PI);
+        // scene.add( gymSprite );
+        //
+        // let blockCSprite = createInfoBlock( "C BLOCK" );
+        // blockCSprite.position.set(55, 135, -80);
+        // blockCSprite.rotation.set(0, 0, Math.PI);
+        // scene.add( blockCSprite );
+        //
+        // let cafeSprite = createInfoBlock( "CAFE" );
+        // cafeSprite.position.set(100, 132, -80);
+        // cafeSprite.rotation.set(0, 0, Math.PI);
+        // scene.add( cafeSprite );
+        //
+        // let fieldSprite = createInfoBlock( "FIELDS" );
+        // fieldSprite.position.set(90, 55, -80);
+        // fieldSprite.rotation.set(0, 0, Math.PI);
+        // scene.add( fieldSprite );
+        //
+        // let restZoneSprite = createInfoBlock( "REST ZONE" );
+        // restZoneSprite.position.set(90, 20, -80);
+        // restZoneSprite.rotation.set(0, 0, Math.PI);
+        // scene.add( restZoneSprite );
+        //
+        // let blockDSprite = createInfoBlock( "D BLOCK" );
+        // blockDSprite.position.set(50, -90, -80);
+        // blockDSprite.rotation.set(0, 0, Math.PI);
+        // scene.add( blockDSprite );
 
     }, undefined, function (error) {
     }, undefined, function (error) {
@@ -810,12 +810,12 @@ function fadeToAction(name, duration) {
         .play();
 }
 
-// function initAnimations(gltf) {
-//     actions = {};
-//     gltf.animations.forEach(i => {
-//         actions[i.name] = mixer.clipAction(i)
-//     })
-// }
+function initAnimations(gltf) {
+    actions = {};
+    gltf.animations.forEach(i => {
+        actions[i.name] = mixer.clipAction(i)
+    })
+}
 
 function playAnimationOnce(animName, animationStopCallback = () => {
 }, reverse = false) {
