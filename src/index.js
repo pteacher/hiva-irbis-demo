@@ -1,13 +1,24 @@
 // DONE: Russian voice recognition and synth
 // DONE: Playing 20 seconds of music from Youtube
 // DONE: News, Time, Weather on request
+// DONE: Computer which can handle Vosk + silero (torch)
+
 
 // TODO: Question answering (accuracy 90%) - based on test
-// TODO: Add more dialogs (1000 most frequent topics phrases)
-// TODO: Computer which can handle Vosk + silero (torch)
-// TODO: 3D model - Barsik with animations: speaking, idle (blinking, random head turn, tail wave, head scratch, body turns, ear moves), wave on greetings, thumbs up animations
-// TODO: 3D Holographic University model: info about all university blocks and each block animated (rotation) and with short info
+// TODO: Optimize answer search speed (to 1 sec)
 // TODO: Wiki search if not found in QA base (confidence less than 50%)
+// TODO: 3D Holographic University model: info about all university blocks and each block animated (rotation) and with short info
+// TODO: Hiva prompt - система для приема и обработки заявок жалоб и предложений на русском языке
+// TODO: HIVA guide – интерактивный гид
+// TODO: Голографическая система афиширования
+
+// TODO: Add more dialogs (1000 most frequent topics phrases)
+// TODO: Video Demo of Project
+
+// TODO: 3D model - Barsik with animations: speaking, idle (blinking, random head turn, tail wave, head scratch, body turns, ear moves), wave on greetings, thumbs up animations
+
+// HIVA EVO (ver. 3)
+// TODO: Система визуального распознавания лиц с помощью ИИ
 
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -601,7 +612,7 @@ function init() {
         // playAnimationOnce("Take 001_right_finger1");
         model.position.set(0, 40, 0);
         // model.scale.set(75, 75, 75);
-        model.scale.set(35, 35, 35);
+        model.scale.set(47, 47, 47);
         // model.scale.set(1.5, 1.5, 1.5);
         //model.position.set(2, 5, 0);
         model.rotation.set(0, 0, Math.PI);
