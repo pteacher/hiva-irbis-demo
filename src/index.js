@@ -612,7 +612,7 @@ function init() {
         // playAnimationOnce("Take 001_right_finger1");
         model.position.set(0, 40, 0);
         // model.scale.set(75, 75, 75);
-        model.scale.set(47, 47, 47);
+        model.scale.set(42, 42, 42);
         // model.scale.set(1.5, 1.5, 1.5);
         //model.position.set(2, 5, 0);
         model.rotation.set(0, 0, Math.PI);
