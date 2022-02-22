@@ -6,11 +6,14 @@
 
 // TODO: Question answering (accuracy 90%) - based on test
 // TODO: Optimize answer search speed (to 1 sec)
-// TODO: Wiki search if not found in QA base (confidence less than 50%)
+// TODO: Wiki search if not found in QA base (confidence less than 50%) (90% pass)
 // TODO: 3D Holographic University model: info about all university blocks and each block animated (rotation) and with short info
-// TODO: Hiva prompt - система для приема и обработки заявок жалоб и предложений на русском языке
-// TODO: HIVA guide – интерактивный гид
+// TODO: Hiva prompt - система для приема и обработки заявок жалоб и предложений на русском языке (нет тестов)
+
+// TODO: HIVA guide – интерактивный гид (вывод на табло)
 // TODO: Голографическая система афиширования
+// TODO: Вывод информации на круговое информационное меню (4-7 пунктов)
+// TODO: Добавить функцию уточняющих вопросов
 
 // TODO: Add more dialogs (1000 most frequent topics phrases)
 // TODO: Video Demo of Project
@@ -256,6 +259,7 @@ function roundRect(ctx, x, y, w, h, r)
 function wrapText(context, text, x, y, maxWidth, lineHeight) {
     let words = text.split(' ');
     let line = '';
+    context.textAlign = "center";
 
     for (let n = 0; n < words.length; n++) {
         console.log(words[n]);
@@ -354,7 +358,7 @@ function createCurvedPlane(text) {
     ctx.font = lineHeight + 'px Verdana';
     ctx.textAlign = "center";
     ctx.fillStyle = "#000";
-    wrapText(ctx, txt, ctx.canvas.width / 2, lineHeight + 10, ctx.canvas.width - 5, lineHeight);
+    wrapText(ctx, text, ctx.canvas.width / 2, ctx.canvas.height / 2, ctx.canvas.width - 5, lineHeight);
 
     const texture = new THREE.CanvasTexture(ctx.canvas);
     const geometry = new THREE.PlaneGeometry(16 / 10, 9 / 10, 8, 1);
@@ -612,7 +616,7 @@ function init() {
         // playAnimationOnce("Take 001_right_finger1");
         model.position.set(0, 40, 0);
         // model.scale.set(75, 75, 75);
-        model.scale.set(42, 42, 42);
+        model.scale.set(40, 40, 40);
         // model.scale.set(1.5, 1.5, 1.5);
         //model.position.set(2, 5, 0);
         model.rotation.set(0, 0, Math.PI);
