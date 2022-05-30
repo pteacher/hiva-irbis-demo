@@ -2,21 +2,22 @@
 // DONE: Playing 20 seconds of music from Youtube
 // DONE: News, Time, Weather on request
 // DONE: Computer which can handle Vosk + silero (torch)
+// DONE: HIVA guide – интерактивный гид (вывод на табло)
+// DONE: Pitch voice to make it cartoon like
+// DONE: Голографическая система афиширования
+// DONE: 70% Hiva prompt - система для приема и обработки заявок жалоб и предложений на русском языке (нет тестов)
+// DONE: 80% Wiki search if not found in QA base (confidence less than 50%) (90% pass)
 
-
-// TODO: Question answering (accuracy 90%) - based on test
+// TODO: Вывод информации на круговое информационное меню (4-7 пунктов) "что ты умеешь делать?"
+// TODO: Question answering local Dialog DataBase (accuracy 90%) - based on test
 // TODO: Optimize answer search speed (to 1 sec)
-// TODO: Wiki search if not found in QA base (confidence less than 50%) (90% pass)
 // TODO: 3D Holographic University model: info about all university blocks and each block animated (rotation) and with short info
-// TODO: Hiva prompt - система для приема и обработки заявок жалоб и предложений на русском языке (нет тестов)
-
-// TODO: HIVA guide – интерактивный гид (вывод на табло)
-// TODO: Голографическая система афиширования
-// TODO: Вывод информации на круговое информационное меню (4-7 пунктов)
 // TODO: Добавить функцию уточняющих вопросов
 
+// TODO: Mobile app - ticket system for incoming Hiva prompt tasks (problems and suggestions)
 // TODO: Add more dialogs (1000 most frequent topics phrases)
 // TODO: Video Demo of Project
+
 
 // TODO: 3D model - Barsik with animations: speaking, idle (blinking, random head turn, tail wave, head scratch, body turns, ear moves), wave on greetings, thumbs up animations
 
@@ -36,6 +37,7 @@ import {io} from "socket.io-client";
 import {EffectComposer} from "three/examples/jsm/postprocessing/EffectComposer";
 import {RenderPass} from "three/examples/jsm/postprocessing/RenderPass";
 import {UnrealBloomPass} from "three/examples/jsm/postprocessing/UnrealBloomPass";
+import {TWEEN} from 'three/examples/jsm/libs/tween.module.min'
 // import {GUI} from "three/examples/jsm/libs/dat.gui.module";
 
 const socket = io();
@@ -170,8 +172,11 @@ socket.on("hello", (data) => {
 
     createCurvedPlane(data.res);
     isInfoShowing = 0;
-
 })
+socket.on("announcement", (data) => {
+    console.log(data);
+    createCircularMenu(data.res.split("|"));
+});
 
 let scene, renderer;
 let mouseX = 0, mouseY = 0;
@@ -193,12 +198,9 @@ let composer,
     // occlusionComposer,
     itemMesh,
     occMesh;
-    // occRenderTarget,
-    // lightSource,
-    // vlShaderUniforms;
-
-// let controls;
-
+// occRenderTarget,
+// lightSource,
+// vlShaderUniforms;
 
 const params = {
     exposure: 1.1,
@@ -208,49 +210,103 @@ const params = {
 };
 
 let renderScene;
-// const lightColor = 0x0099ff;
 const ctx = document.createElement('canvas').getContext('2d');
 
-function createInfoBlock(message) {
+function fadeMesh(mesh, direction, options) {
+    options = options || {};
+    // set and check
+    let current = {percentage: direction == "in" ? 1 : 0},
+        // this check is used to work with normal and multi materials.
+        mats = mesh.material.materials ?
+            mesh.material.materials : [mesh.material],
+
+        originals = mesh.userData.originalOpacities,
+        easing = options.easing || TWEEN.Easing.Linear.None,
+        duration = options.duration || 2000;
+    // check to make sure originals exist
+    if (!originals) {
+        console.error("Fade error: originalOpacities not defined, use trackOriginalOpacities");
+        return;
+    }
+    // tween opacity back to originals
+    let tweenOpacity = new TWEEN.Tween(current)
+        .to({percentage: direction == "in" ? 0 : 1}, duration)
+        .easing(easing)
+        .onUpdate(function () {
+            for (var i = 0; i < mats.length; i++) {
+                mats[i].opacity = originals[i] * current.percentage;
+            }
+        })
+        .onComplete(function () {
+            if (options.callback) {
+                options.callback();
+            }
+        });
+    tweenOpacity.start();
+    return tweenOpacity;
+}
+
+function createInfoBlock(message, x, y, w, h) {
     let canvas = document.createElement('canvas');
-    let context = canvas.getContext('2d');
-    let textSize = 20;
-    context.font = textSize + "px Verdana";
-    let metrics = context.measureText( message );
-    let textWidth = metrics.width;
+    let ctx = canvas.getContext('2d');
+    ctx.canvas.width = w * 3;
+    ctx.canvas.height = h * 3;
 
-    context.fillStyle = "rgba(255, 255, 255, 0.0)";
-    context.strokeStyle = "rgb(255, 255, 255)";
+    // ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    let lineHeight = 80;
+
+    if (message.length < 10) {
+        lineHeight = 100;
+    }
+
+    ctx.font = lineHeight + 'px Verdana';
+    ctx.textAlign = "center";
+    // ctx.fillStyle = "#000";
+
+
+    // context.font = textSize + "px Verdana";
+    // let metrics = context.measureText( message );
+    // let textWidth = metrics.width;
+    //
+    // // context.fillStyle = "rgba(255, 255, 255, 0.0)";
+    // context.fillStyle = "rgba(255, 255, 255, 0.8)";
+    // context.strokeStyle = "rgb(255, 255, 255)";
     const borderThickness = 2;
-    context.lineWidth = borderThickness;
-    roundRect(context, borderThickness/2, borderThickness/2, textWidth + borderThickness + 10, textSize * 1.4 + borderThickness, 6);
+    // context.lineWidth = borderThickness;
+    // roundRect(context, borderThickness/2, borderThickness/2, textWidth + borderThickness + 10, textSize * 1.4 + borderThickness, 6);
 
-    context.fillStyle = "rgba(255, 50, 50, 1.0)";
-    context.fillText( " " + message, borderThickness, textSize + borderThickness);
+    ctx.fillStyle = "#fff";
+    roundRect(ctx, borderThickness / 2, borderThickness / 2, ctx.canvas.width, ctx.canvas.height, 20);
+    ctx.fillStyle = "#000";
+    wrapText(ctx, message, ctx.canvas.width / 2, ctx.canvas.height / 2, ctx.canvas.width - 5, lineHeight);
+    // let textSize = 20;
+    // ctx.fillStyle = "rgba(0, 0, 0, 1.0)";
+    // context.fillStyle = "rgba(255, 10, 10, 1.0)";
+    // ctx.fillText( " " + message, borderThickness, textSize + borderThickness);
 
     let texture = new THREE.Texture(canvas)
     texture.needsUpdate = true;
     texture.repeat.set(-1, 1);
     texture.center.set(0.5, 0.5);
     let spriteMaterial = new THREE.SpriteMaterial(
-        { map: texture, useScreenCoordinates: false, rotation: Math.PI} );
-    let sprite = new THREE.Sprite( spriteMaterial );
-    sprite.scale.set(100,50,1.0);
+        {map: texture, useScreenCoordinates: false, rotation: Math.PI, transparent: true, opacity: 0.9});
+    let sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(w / 3, h / 3, 0.3);
+    sprite.position.set(x, y, 100);
     return sprite;
 }
 
-function roundRect(ctx, x, y, w, h, r)
-{
+function roundRect(ctx, x, y, w, h, r) {
     ctx.beginPath();
-    ctx.moveTo(x+r, y);
-    ctx.lineTo(x+w-r, y);
-    ctx.quadraticCurveTo(x+w, y, x+w, y+r);
-    ctx.lineTo(x+w, y+h-r);
-    ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
-    ctx.lineTo(x+r, y+h);
-    ctx.quadraticCurveTo(x, y+h, x, y+h-r);
-    ctx.lineTo(x, y+r);
-    ctx.quadraticCurveTo(x, y, x+r, y);
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
@@ -328,13 +384,10 @@ function planeCurve(g, z) {
         mainV.copy(c).rotateAround(center, (arc * uvRatio));
         pos.setXYZ(i, mainV.x, y, -mainV.y);
     }
-
     pos.needsUpdate = true;
-
 }
 
 function createCurvedPlane(text) {
-
     if (curvedRectangle != null) {
         curvedRectangle.geometry.dispose();
         curvedRectangle.material.dispose();
@@ -347,18 +400,22 @@ function createCurvedPlane(text) {
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    let txt = text.toUpperCase();
-    let lineHeight = 24;
+    let lineHeight = 30;
 
     if (text.length < 10) {
-        lineHeight = 58;
+        lineHeight = 60;
     }
-
+    if (text.length > 35) {
+        lineHeight = 22;
+    }
+    if (text.length > 45) {
+        lineHeight = 20;
+    }
 
     ctx.font = lineHeight + 'px Verdana';
     ctx.textAlign = "center";
     ctx.fillStyle = "#000";
-    wrapText(ctx, text, ctx.canvas.width / 2, ctx.canvas.height / 2, ctx.canvas.width - 5, lineHeight);
+    wrapText(ctx, text.toUpperCase(), ctx.canvas.width / 2, ctx.canvas.height / 3, ctx.canvas.width - 5, lineHeight);
 
     const texture = new THREE.CanvasTexture(ctx.canvas);
     const geometry = new THREE.PlaneGeometry(16 / 10, 9 / 10, 8, 1);
@@ -381,10 +438,11 @@ function createCurvedPlane(text) {
     curvedRectangle.material.opacity = 0;
     appear = true;
     rotSpeed = -4;
+
     rotAngle = 180;
+    rotateAboutPoint(curvedRectangle, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0), THREE.Math.degToRad(rotAngle), true);
     evenTextMessage = 0;
 
-    rotateAboutPoint(curvedRectangle, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0), THREE.Math.degToRad(rotAngle), true);
 }
 
 const views = [
@@ -423,8 +481,6 @@ const views = [
 let particles;
 let pointCloud;
 let particlePositions;
-
-
 let particleNum = 30;
 let range = 300;
 
@@ -432,6 +488,62 @@ init();
 
 const roughnessMipmapper = new RoughnessMipmapper(renderer);
 animate();
+
+function createCircularMenu(list) {
+    // if (curvedRectangle != null) {
+    //     curvedRectangle.geometry.dispose();
+    //     curvedRectangle.material.dispose();
+    //     clearTimeout(disapearTimer);
+    //     scene.remove(curvedRectangle);
+    // }
+    const n = list.length;
+    const a = 360 / n;
+    const group = new THREE.Group();
+    for (const i in list) {
+        group.add(createInfoBlock(list[i], Math.cos(Math.PI * (a * i) / 180) * 50, Math.sin(Math.PI * (a * i) / 180) * 50, 7 / n * 150, 7 / n * 75));
+    }
+    group.scale.set(0, 0, 0)
+    scene.add(group);
+
+    const bounce = () => {
+
+        new TWEEN.Tween(group.scale)
+            .to({
+                x: 1,
+                y: 1,
+                z: 1
+            }, 2000)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start()
+            .onComplete(() => {
+                    new TWEEN.Tween(group.scale)
+                        .to({
+                            x: 1,
+                            y: 1,
+                            z: 1
+                        }, 10000)
+                        .easing(TWEEN.Easing.Quadratic.In)
+                        .start().onComplete(() => {
+                        new TWEEN.Tween(group.scale)
+                            .to({
+                                x: 0,
+                                y: 0,
+                                z: 0
+                            }, 1000)
+                            .easing(TWEEN.Easing.Cubic.In)
+                            .start()
+                    })
+                }
+            )
+    }
+
+    // fadeMesh(group, "out");
+
+    // setInterval(bounce, 1000);
+
+    bounce();
+
+}
 
 function init() {
     const container = document.getElementById('container');
@@ -466,7 +578,6 @@ function init() {
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     // const shadowTexture = new THREE.CanvasTexture(canvas);
-
     // const shadowMaterial = new THREE.MeshBasicMaterial({map: shadowTexture, transparent: true});
     // const shadowGeo = new THREE.PlaneGeometry(300, 300, 1, 1);
 
@@ -475,13 +586,13 @@ function init() {
     const geometry1 = new THREE.IcosahedronGeometry(radius, 1);
     const textureLoader = new THREE.TextureLoader();
 
-    const sprite1 = textureLoader.load( 'snowflake2.png' );
+    const sprite1 = textureLoader.load('snowflake2.png');
 
-    var pMaterial = new THREE.PointsMaterial({
+    let pMaterial = new THREE.PointsMaterial({
         color: 0xFFFFFF,
         size: 30,
         map: sprite1,
-        opacity:0.5,
+        opacity: 0.5,
         blending: THREE.AdditiveBlending,
         transparent: true,
     });
@@ -489,29 +600,28 @@ function init() {
     particles = new THREE.BufferGeometry();
 
     particlePositions = new Float32Array(particleNum * 3);
-    for ( var i = 0; i < particleNum; i++ ) {
-        var x = Math.random() * range - range / 2;
-        var y = Math.random() * range - range / 2;
-        var z = Math.random() * range - range / 2;
-        particlePositions[ i * 3     ] = x;
-        particlePositions[ i * 3 + 1 ] = y;
-        particlePositions[ i * 3 + 2 ] = z;
+    for (let i = 0; i < particleNum; i++) {
+        let x = Math.random() * range - range / 2;
+        let y = Math.random() * range - range / 2;
+        let z = Math.random() * range - range / 2;
+        particlePositions[i * 3] = x;
+        particlePositions[i * 3 + 1] = y;
+        particlePositions[i * 3 + 2] = z;
     }
-    particles.setDrawRange( 0, particleNum );
-    particles.addAttribute( 'position', new THREE.BufferAttribute( particlePositions, 3 ).setDynamic(true));
-    pointCloud = new THREE.Points( particles, pMaterial );
+    particles.setDrawRange(0, particleNum);
+    particles.addAttribute('position', new THREE.BufferAttribute(particlePositions, 3).setDynamic(true));
+    pointCloud = new THREE.Points(particles, pMaterial);
     // scene.add( pointCloud );
 
     const count = geometry1.attributes.position.count;
     geometry1.setAttribute('color', new THREE.BufferAttribute(new Float32Array(count * 3), 3));
-
 
     renderer = new THREE.WebGLRenderer({antialias: true});
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.toneMapping = THREE.ReinhardToneMapping;
     container.appendChild(renderer.domElement);
-    scene.add( new THREE.AmbientLight( 0x404040 ) );
+    scene.add(new THREE.AmbientLight(0x404040));
 
     for (let ii = 0; ii < views.length; ++ii) {
         const view = views[ii];
@@ -521,16 +631,12 @@ function init() {
         camera.lookAt(scene.position);
         view.camera = camera;
 
-        renderScene = new RenderPass( scene, view.camera );
-
+        renderScene = new RenderPass(scene, view.camera);
         // setupScene();
         // setupPostprocessing(window.innerWidth, window.innerHeight, camera);
-
-        const controls = new OrbitControls(camera, renderer.domElement );
-
-        const pointLight = new THREE.PointLight( 0xffffff, 1 );
-        camera.add( pointLight );
-
+        const controls = new OrbitControls(camera, renderer.domElement);
+        const pointLight = new THREE.PointLight(0xffffff, 1);
+        camera.add(pointLight);
         controls.update();
 
 
@@ -549,14 +655,14 @@ function init() {
         // occlusionComposer.addPass(hBlur);
     }
 
-    const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 2.5, 1, 0.1 );
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 2.5, 1, 0.1);
     bloomPass.threshold = params.bloomThreshold;
     bloomPass.strength = params.bloomStrength;
     bloomPass.radius = params.bloomRadius;
 
-    composer = new EffectComposer( renderer );
-    composer.addPass( renderScene );
-    composer.addPass( bloomPass );
+    composer = new EffectComposer(renderer);
+    composer.addPass(renderScene);
+    composer.addPass(bloomPass);
 
     // renderer.toneMappingExposure = Math.pow( 2, 4.0 );
     // bloomPass.threshold = Number( 1 );
@@ -580,34 +686,35 @@ function init() {
         })
         mixer = new THREE.AnimationMixer(gltf.scene);
         initAnimations(gltf)
-        activeAction = actions["idle"];
+        console.log(actions);
+        activeAction = actions["Idle"];
         setTimeout(() => {
-            fadeToAction("blockBinfo", .1)
+            fadeToAction("Greeting", .1)
         }, 1000)
 
         setTimeout(() => {
-            fadeToAction("hi", .1)
+            fadeToAction("Thumb up", .1)
         }, 1000)
 
         setTimeout(() => {
-            fadeToAction("speak", 0.2)
+            fadeToAction("Head scratch", 0.2)
         }, 13000)
 
         setTimeout(() => {
-            fadeToAction("hi", 0.2)
+            fadeToAction("Greeting", 0.2)
         }, 6000)
 
         setTimeout(() => {
-            fadeToAction("stand", 0.2)
+            fadeToAction("KeyAction", 0.2)
         }, 9000)
 
         // setTimeout(() => {
         //     fadeToAction("idle", 0.2)
         // }, 12000)
 
-        setInterval(() => {
-            fadeToAction("hi", 0.2)
-        }, 60000)
+        // setInterval(() => {
+        //     fadeToAction("KeyAction", 0.2)
+        // }, 60000)
 
         setInterval(() => {
             fadeToAction("stand", .1)
@@ -620,7 +727,9 @@ function init() {
         // model.scale.set(1.5, 1.5, 1.5);
         //model.position.set(2, 5, 0);
         model.rotation.set(0, 0, Math.PI);
+
         scene.add(model);
+
 
         // let blockASprite = createInfoBlock( "A BLOCK" );
         // blockASprite.position.set(-30, 130, -80);
@@ -662,6 +771,7 @@ function init() {
         // blockDSprite.rotation.set(0, 0, Math.PI);
         // scene.add( blockDSprite );
 
+
     }, undefined, function (error) {
     }, undefined, function (error) {
         console.error(error);
@@ -693,123 +803,12 @@ function init() {
     //     bloomPass.radius = Number( value );
     //
     // } );
-
+    let faculties = ["ФАКУЛЬТЕТ ИНЖЕНЕРИИ И ИНФОРМАТИКИ", "ФАКУЛЬТЕТ МЕДИЦИНЫ", "ГУМАНИТАРНЫЙ ФАКУЛЬТЕТ", "ФАКУЛЬТЕТ МЕНЕДЖМЕНТА И ЭКОНОМИКИ"];
+    // let app = ["ПОГОДА", "ВРЕМЯ", "НОВОСТИ", "ВИРТУАЛЬНЫЙ ТУР", "ЖАЛОБА", "МУЗЫКА", "ПЕСНЯ"]
 
 
     document.addEventListener('mousemove', onDocumentMouseMove);
-
 }
-
-// function setupScene() {
-//     lightSource = new THREE.Object3D();
-//     lightSource.position.x = 5;
-//     lightSource.position.y = -15;
-//     lightSource.position.z = -15;
-//
-//     const itemMaterial = new THREE.MeshBasicMaterial({transparent: true, opacity: 0.7});
-//
-//     const img = new Image();
-//     img.src = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/13307/blaster.png';
-//     img.crossOrigin = 'Anonymous';
-//
-//     img.onload = function() {
-//         const itemTexture = new THREE.Texture(
-//             getImageTexture(img),
-//             null,
-//             THREE.ClampToEdgeWrapping,
-//             THREE.ClampToEdgeWrapping,
-//             null,
-//             THREE.LinearFilter
-//         );
-//
-//         itemTexture.needsUpdate = true;
-//         itemMaterial.map = itemTexture;
-//
-//         const itemGeo = new THREE.BoxGeometry( 30, 30, 30);
-//         itemMesh = new THREE.Mesh(itemGeo, itemMaterial);
-//         scene.add(itemMesh);
-//
-//         const occItemMaterial = new THREE.MeshBasicMaterial({color: lightColor});
-//         occItemMaterial.map = itemTexture;
-//
-//         occMesh = new THREE.Mesh(itemGeo, occItemMaterial);
-//         occMesh.layers.set(1);
-//
-//         scene.add(occMesh);
-//     }
-//
-//     // camera.position.z = 4.5;
-// }
-
-
-
-// function setupPostprocessing(width, height, camera) {
-//     occRenderTarget = new WebGLRenderTarget(width * .25, height * .25);
-//
-//     // Blur passes
-//     const hBlur = new ShaderPass(HorizontalBlurShader);
-//     const vBlur = new ShaderPass(VerticalBlurShader);
-//     const bluriness = 7;
-//     hBlur.uniforms.h.value = bluriness / width;
-//     vBlur.uniforms.v.value = bluriness / height;
-//
-//
-//     // Bad TV Pass
-//     // badTVPass = new THREE.ShaderPass(THREE.BadTVShader);
-//     // badTVPass.uniforms.distortion.value = 1.9;
-//     // badTVPass.uniforms.distortion2.value = 1.2;
-//     // badTVPass.uniforms.speed.value = 0.1;
-//     // badTVPass.uniforms.rollSpeed.value = 0;
-//
-//     // Volumetric Light Pass
-//     const vlPass = new ShaderPass(VolumetericLightShader);
-//     vlShaderUniforms = vlPass.uniforms;
-//     vlPass.needsSwap = false;
-//
-//     // Occlusion Composer
-//     occlusionComposer = new EffectComposer(renderer, occRenderTarget);
-//     occlusionComposer.addPass(new RenderPass(scene, camera));
-//     occlusionComposer.addPass(hBlur);
-//     occlusionComposer.addPass(vBlur);
-//     occlusionComposer.addPass(hBlur);
-//     occlusionComposer.addPass(vBlur);
-//     occlusionComposer.addPass(hBlur);
-//     occlusionComposer.addPass(vlPass);
-//
-//     // Bloom pass
-//     // bloomPass = new THREE.UnrealBloomPass(width / height, 0.5, .8, .3);
-//
-//     // Film pass
-//     // filmPass = new THREE.ShaderPass(THREE.FilmShader);
-//     // filmPass.uniforms.sCount.value = 1200;
-//     // filmPass.uniforms.grayscale.value = false;
-//     // filmPass.uniforms.sIntensity.value = 1.5;
-//     // filmPass.uniforms.nIntensity.value = 0.2;
-//
-//     // Blend occRenderTarget into main render target
-//     blendPass = new ShaderPass(AdditiveBlendingShader);
-//     blendPass.uniforms.tAdd.value = occRenderTarget.texture;
-//     blendPass.renderToScreen = true;
-//
-//     // Main Composer
-//     renderScene = new RenderPass( scene, camera );
-//
-//     bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
-//     bloomPass.threshold = params.bloomThreshold;
-//     bloomPass.strength = params.bloomStrength;
-//     bloomPass.radius = params.bloomRadius;
-//
-//     composer = new EffectComposer( renderer );
-//     composer.addPass( renderScene );
-//     composer.addPass( bloomPass );
-//
-//     composer = new EffectComposer(renderer);
-//     composer.addPass(new RenderPass(scene, camera));
-//     // composer.addPass(bloomPass);
-//     // composer.addPass(badTVPass);
-//     // composer.addPass(filmPass);
-//     composer.addPass(blendPass);
-// }
 
 function fadeToAction(name, duration) {
     previousAction = activeAction;
@@ -896,22 +895,18 @@ function updateSize() {
     }
 }
 
+
 function animate() {
-
     // let time = Date.now() * 0.001;
-
-    for (var i= 0; i < particleNum; i++ ) {
-
-        particlePositions[i*3+1] += 1;
-
-        if (particlePositions[i*3+1] > range/2 ){
-            particlePositions[i*3+1] = -range/2
-        }
-
-    }
-
-    pointCloud.geometry.attributes.position.needsUpdate = true;
-
+    // for (let i= 0; i < particleNum; i++ ) {
+    //     particlePositions[i*3+1] += 1;
+    //     if (particlePositions[i*3+1] > range/2 ){
+    //         particlePositions[i*3+1] = -range/2
+    //     }
+    // }
+    //
+    // pointCloud.geometry.attributes.position.needsUpdate = true;
+    TWEEN.update();
 
     if (isInfoShowing <= 1 && appear && rotAngle > 0) {
         rotateAboutPoint(curvedRectangle, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0), THREE.Math.degToRad(rotSpeed));
@@ -926,7 +921,7 @@ function animate() {
                 rotAngle = 180;
                 appear = true;
                 isInfoShowing++;
-            }, 6 * 1000); // SECONDS TO WAIT BEFORE PANE WILL DISAPPEAR
+            }, 8 * 1000); // SECONDS TO WAIT BEFORE PANE WILL DISAPPEAR
 
         }
     }
@@ -941,7 +936,6 @@ function animate() {
     // controls.update();
 }
 
-
 function update() {
     const timeDelta = clock.getDelta();
     const elapsed = clock.getElapsedTime();
@@ -952,7 +946,6 @@ function update() {
         occMesh.rotation.copy(itemMesh.rotation);
     }
 }
-
 
 function render() {
     // for (let ii = 0; ii < views.length; ++ii) {
