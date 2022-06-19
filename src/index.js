@@ -7,8 +7,8 @@
 // DONE: Голографическая система афиширования
 // DONE: 70% Hiva prompt - система для приема и обработки заявок жалоб и предложений на русском языке (нет тестов)
 // DONE: 80% Wiki search if not found in QA base (confidence less than 50%) (90% pass)
+// DONE: Вывод информации на круговое информационное меню (4-7 пунктов) "что ты умеешь делать?"
 
-// TODO: Вывод информации на круговое информационное меню (4-7 пунктов) "что ты умеешь делать?"
 // TODO: Question answering local Dialog DataBase (accuracy 90%) - based on test
 // TODO: Optimize answer search speed (to 1 sec)
 // TODO: 3D Holographic University model: info about all university blocks and each block animated (rotation) and with short info
@@ -28,7 +28,8 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {RoughnessMipmapper} from 'three/examples/jsm/utils/RoughnessMipmapper.js';
-import head from './eve_anim.glb';
+//import head from './eve_anim.glb';
+import head from './chibi_v2.glb';
 import {io} from "socket.io-client";
 // import {WebGLRenderTarget} from "three";
 // import {ShaderPass} from "three/examples/jsm/postprocessing/ShaderPass";
@@ -159,16 +160,30 @@ socket.on("connect", () => {
     console.log(socket.id);
 });
 
-socket.on("hello", (data) => {
-    console.log(data.res);
+socket.on("startspeak", () => {
+    console.log("START SPEAK");
     setTimeout(() => {
-        fadeToAction("hi", 0.2)
-    }, 1000)
+        fadeToAction("greeting", 0)
+    }, 1)
 
     setTimeout(() => {
-        fadeToAction("stand", 0.2)
-    }, 4000)
-    console.log(isInfoShowing);
+        fadeToAction("Mouth loop", 1)
+    }, 2)
+})
+
+socket.on("endspeak", () => {
+    console.log("END SPEAK");
+    setTimeout(() => {
+        fadeToAction("greeting", 0)
+    }, 1)
+
+    setTimeout(() => {
+        fadeToAction("Idle", 1)
+    }, 2)
+})
+
+socket.on("hello", (data) => {
+    console.log(data.res.length);
 
     createCurvedPlane(data.res);
     isInfoShowing = 0;
@@ -246,16 +261,16 @@ function fadeMesh(mesh, direction, options) {
     return tweenOpacity;
 }
 
-function createInfoBlock(message, x, y, w, h) {
+function createInfoBlock(message, x, y, w, h, n) {
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
     ctx.canvas.width = w * 3;
     ctx.canvas.height = h * 3;
 
     // ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    let lineHeight = 80;
+    let lineHeight = 50;
 
-    if (message.length < 10) {
+    if (message.length < 10 && n < 5) {
         lineHeight = 100;
     }
 
@@ -500,7 +515,7 @@ function createCircularMenu(list) {
     const a = 360 / n;
     const group = new THREE.Group();
     for (const i in list) {
-        group.add(createInfoBlock(list[i], Math.cos(Math.PI * (a * i) / 180) * 50, Math.sin(Math.PI * (a * i) / 180) * 50, 7 / n * 150, 7 / n * 75));
+        group.add(createInfoBlock(list[i], Math.cos(Math.PI * (a * i) / 180) * 50, Math.sin(Math.PI * (a * i) / 180) * 50, 7 / n * 150, 7 / n * 75), n);
     }
     group.scale.set(0, 0, 0)
     scene.add(group);
@@ -521,7 +536,7 @@ function createCircularMenu(list) {
                             x: 1,
                             y: 1,
                             z: 1
-                        }, 10000)
+                        }, 13000)
                         .easing(TWEEN.Easing.Quadratic.In)
                         .start().onComplete(() => {
                         new TWEEN.Tween(group.scale)
@@ -688,25 +703,6 @@ function init() {
         initAnimations(gltf)
         console.log(actions);
         activeAction = actions["Idle"];
-        setTimeout(() => {
-            fadeToAction("Greeting", .1)
-        }, 1000)
-
-        setTimeout(() => {
-            fadeToAction("Thumb up", .1)
-        }, 1000)
-
-        setTimeout(() => {
-            fadeToAction("Head scratch", 0.2)
-        }, 13000)
-
-        setTimeout(() => {
-            fadeToAction("Greeting", 0.2)
-        }, 6000)
-
-        setTimeout(() => {
-            fadeToAction("KeyAction", 0.2)
-        }, 9000)
 
         // setTimeout(() => {
         //     fadeToAction("idle", 0.2)
@@ -717,13 +713,16 @@ function init() {
         // }, 60000)
 
         setInterval(() => {
-            fadeToAction("stand", .1)
+            fadeToAction("Idle", .1)
         }, 62000)
+        setInterval(() => {
+            fadeToAction("Blinking", .1)
+        }, 60000)
 
         // playAnimationOnce("Take 001_right_finger1");
-        model.position.set(0, 40, 0);
+        model.position.set(0, 60, 0);
         // model.scale.set(75, 75, 75);
-        model.scale.set(40, 40, 40);
+        model.scale.set(130, 130, 130);
         // model.scale.set(1.5, 1.5, 1.5);
         //model.position.set(2, 5, 0);
         model.rotation.set(0, 0, Math.PI);
@@ -821,6 +820,7 @@ function fadeToAction(name, duration) {
         .setEffectiveTimeScale(1)
         .setEffectiveWeight(1)
         .fadeIn(duration)
+        // .setLoop(THREE.LoopOnce, 1)
         .play();
 }
 
@@ -844,7 +844,12 @@ function playAnimationOnce(animName, animationStopCallback = () => {
                 action.timeScale = -1;
             }
             action.play();
-
+            let action = actions["Blinking"]
+            action.clampWhenFinished = true;
+            action.enabled = true;
+            action.loop = THREE.LoopOnce;
+            action.paused = false;
+            action.play();
             setTimeout(() => {
                 animationStopCallback()
             }, action.duration * 1000)
@@ -921,7 +926,7 @@ function animate() {
                 rotAngle = 180;
                 appear = true;
                 isInfoShowing++;
-            }, 8 * 1000); // SECONDS TO WAIT BEFORE PANE WILL DISAPPEAR
+            }, 10 * 1000); // SECONDS TO WAIT BEFORE PANE WILL DISAPPEAR
 
         }
     }
