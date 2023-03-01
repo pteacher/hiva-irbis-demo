@@ -1,25 +1,171 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<title>My first three.js app</title>
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Play&display=swap" rel="stylesheet">
-		<style>
-			body {
-				margin: 0;
-				font-size: 6em;
-				font-family: 'Play', sans-serif;
-			}
-			canvas {
-				font-size: 6em;
-				font-family: 'Play', sans-serif;
-			}
-		</style>
-		<script defer src="main.js"></script>
-	</head>
-	<body>
-		<div id="container"></div>
-	</body>
+<head>
+    <meta charset="utf-8">
+    <title>My first three.js app</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Play&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-size: 6em;
+            font-family: 'Play', sans-serif;
+            background-color: black;
+        }
+        #container {
+            animation-fill-mode: forwards;
+        }
+
+        canvas {
+            font-size: 6em;
+            font-family: 'Play', sans-serif;
+        }
+        .content {
+            position: absolute;
+            top: -25px;
+            left: 40%;
+            width: 230px;
+            margin: 0 auto;
+            transform: rotate(180deg);
+        }
+        #player {
+            width: 100%;
+            opacity: 0.0;
+            animation-fill-mode: forwards;
+        }
+
+        .fade-in { animation: fadeIn 3s; }
+        .fade-out { animation: fadeOut 3s; }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        #info {
+            position: absolute;
+            font-size: x-large;
+            top: 30px;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            margin: 0 auto;
+            text-align: center;
+            z-index: 100;
+            display:flex;
+            justify-content: center;
+            color: white;
+            visibility: visible;
+            transform: scaleY(-1);
+        }
+
+        #info p {
+            width: 30%;
+        }
+
+        .pulse {
+            position: absolute;
+            top: 320px;
+            z-index: 100;
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            visibility: hidden;
+        }
+
+        .dot-pulse {
+            position: relative;
+            left: -9999px;
+            width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            color: #fff;
+            box-shadow: 9999px 0 0 -5px #9880ff;
+            animation: dotPulse 1.5s infinite linear;
+            animation-delay: .25s;
+        }
+
+        .dot-pulse::before, .dot-pulse::after {
+            content: '';
+            display: inline-block;
+            position: absolute;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            color: #fff;
+        }
+
+        .dot-pulse::before {
+            box-shadow: 9984px 0 0 -5px #fff;
+            animation: dotPulseBefore 1.5s infinite linear;
+            animation-delay: 0s;
+        }
+
+        .dot-pulse::after {
+            box-shadow: 10014px 0 0 -5px #fff;
+            animation: dotPulseAfter 1.5s infinite linear;
+            animation-delay: .5s;
+        }
+
+        @keyframes dotPulseBefore {
+            0% {
+                box-shadow: 9984px 0 0 -5px #fff;
+            }
+            30% {
+                box-shadow: 9984px 0 0 2px #fff;
+            }
+            60%,
+            100% {
+                box-shadow: 9984px 0 0 -5px #fff;
+            }
+        }
+
+        @keyframes dotPulse {
+            0% {
+                box-shadow: 9999px 0 0 -5px #fff;
+            }
+            30% {
+                box-shadow: 9999px 0 0 2px #fff;
+            }
+            60%,
+            100% {
+                box-shadow: 9999px 0 0 -5px #fff;
+            }
+        }
+
+        @keyframes dotPulseAfter {
+            0% {
+                box-shadow: 10014px 0 0 -5px #fff;
+            }
+            30% {
+                box-shadow: 10014px 0 0 2px #fff;
+            }
+            60%,
+            100% {
+                box-shadow: 10014px 0 0 -5px #fff;
+            }
+        }
+
+    </style>
+    <script defer src="main.js"></script>
+</head>
+<body>
+<div class="content" id="holo-video">
+    <video id="player" src="alatoovid.mp4" muted></video>
+</div>
+<div id="container"></div>
+<div id="info"><p>
+</p></div>
+<div class="pulse">
+    <div class="dot-pulse"></div>
+</div>
+</body>
 </html>
